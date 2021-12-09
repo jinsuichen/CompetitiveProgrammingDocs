@@ -57,7 +57,7 @@ void solve2(){
 ```cpp
 int n, m; //n代表原串长度，m代表模式串长度
 char s[1000010]; //原串，从1开始存储
-char p[100010]; //模式串吗，从1开始存储
+char p[100010]; //模式串，从1开始存储
 int nxt[100010];
 
 void init(){
@@ -74,7 +74,7 @@ void solve(){
         while(j && s[i] != p[j+1]) j = nxt[j];
         if(s[i] == p[j+1]) j++;
         if(j == m){
-            printf("%d ", i-m); // i-m 为起始下标
+            printf("%d ", i-m); // i-m 为模式串在原串中的起始下标
             //do something
             j = nxt[j];
         }
