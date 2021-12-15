@@ -9,7 +9,6 @@ const int maxn = 1e5+50; //点的数量
 const int maxm = maxn*2; //边的数量
 
 int h[maxn], e[maxm], ne[maxm];
-bool vis[maxn];
 int top;
 
 void init(){
@@ -167,13 +166,14 @@ int dijkstra(){
 typedef pair<int, int> PII;
 
 const int maxn = 2e5+50;
+const int maxm = 5e5+20;
 const int INF = 0x3f3f3f3f;
 int n, m;
 
 int dist[maxn];
 bool vis[maxn];
 
-int h[maxn], e[maxn], weight[maxn], ne[maxn], idx;
+int h[maxn], e[maxm], weight[maxm], ne[maxm], idx;
 
 void init(){
     memset(h, -1, sizeof(h));
@@ -248,13 +248,14 @@ int bellman_ford(){
 
 ```cpp
 const int maxn = 1e5+50;
+const int maxm = 1e5+50;
 const int INF = 0x3f3f3f3f;
 int n, m;
 
 int dist[maxn];
 bool vis[maxn];
 
-int h[maxn], e[maxn], weight[maxn], ne[maxn], idx;
+int h[maxn], e[maxm], weight[maxm], ne[maxm], idx;
 
 void init(){
     memset(h, -1, sizeof(h));
@@ -293,13 +294,14 @@ int spfa(){
 
 ```cpp
 const int maxn = 1e5+50;
+const int maxm = 1e5+50;
 const int INF = 0x3f3f3f3f;
 int n, m;
 
 int dist[maxn], cnt[maxn];
 bool vis[maxn];
 
-int h[maxn], e[maxn], weight[maxn], ne[maxn], idx;
+int h[maxn], e[maxm], weight[maxm], ne[maxm], idx;
 
 void init(){
     memset(h, -1, sizeof(h));
@@ -377,11 +379,10 @@ void floyd(){
 
 ```cpp
 const int maxn = 520;
-const int maxm = 1e5+20;
 const int INF = 0x3f3f3f3f;
 
 int n, m; 
-int dist[maxm];
+int dist[maxn];
 int g[maxn][maxn];
 bool vis[maxn];
 
@@ -430,7 +431,6 @@ int prim(){
 
 ```cpp
 const int INF = 0x3f3f3f3f;
-const int maxn = 1e5+20;
 const int maxm = 2e5+20;
 
 int n, m;
