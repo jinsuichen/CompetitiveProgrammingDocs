@@ -84,8 +84,10 @@ void solve(){
 
 # Trie
 
+区分大小写：```int u = s[i] >= 'a' ? s[i] - 'a' : s[i] - 'A'+ 26;```
+
 ```cpp
-const int maxn = 1e5+50;
+const int maxn = 1e5*30+50;
 
 int cnt[maxn];
 int son[maxn][26];
@@ -96,7 +98,7 @@ char str[maxn];
 void insert(char * s){
     int r = 0;
     for(int i = 0; s[i]; i++){
-        int u = s[i] - '0';
+        int u = s[i] - 'a';
         if(!son[r][u]) son[r][u] = ++idx;
         r = son[r][u];
     }
@@ -106,7 +108,7 @@ void insert(char * s){
 int query(char* s){
     int r = 0;
     for(int i = 0; s[i]; i++){
-        int u = s[i] - '0';
+        int u = s[i] - 'a';
         if(!son[r][u]) return 0;
         r = son[r][u];
     }
