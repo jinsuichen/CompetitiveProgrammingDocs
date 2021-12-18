@@ -494,20 +494,6 @@ void BigNum::print() {
         printf("%04d", a[i]);
     printf("\n");
 }
-
-BigNum f[110];//卡特兰数
-
-int main() {
-    f[0] = 1;
-    for (int i = 1; i <= 100; i++)
-        f[i] = f[i - 1] * (4 * i - 2) / (i + 1);//卡特兰数递推式
-    int n;
-    while (scanf("%d", &n) == 1) {
-        if (n == -1)break;
-        f[n].print();
-    }
-    return 0;
-}
 ```
 
 # 前缀和与差分
