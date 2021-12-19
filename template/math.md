@@ -617,31 +617,43 @@ vector<int> C(int a, int b){
 
 ## 单次
 
-也可以将所有组合数预处理出来，O(1)计算
+将所有阶乘预处理出来
 
 ```cpp
 typedef long long LL;
 
-const int mod = 1e9 + 7;
+const int mod = 1e9+7;
+const int maxn = 2e5+20;
 
-int qmi(int a, int k, int p) {
+int fact[maxn];
+int infact[maxn];
+
+int qmi(int a, int k, int p){
     int res = 1;
-    while (k) {
-        if (k & 1) res = (LL)res * a % p;
-        a = (LL)a * a % p;
+    while(k) {
+        if(k & 1) res = (LL)res * a % p;
         k >>= 1;
+        a = (LL) a * a % p;
     }
     return res;
 }
 
-int catalan(int n, int p){
-    int a = n * 2, b = n;
-    int res = 1;
-    for (int i = a; i > a - b; i -- ) res = (LL)res * i % p;
-    for (int i = 1; i <= b; i ++ ) res = (LL)res * qmi(i, p - 2, p) % p;
-    res = (LL)res * qmi(n + 1, p - 2, p) % p;
-    return res;
+void init(){
+    fact[0] = infact[0] = 1;
+    for(int i = 1; i<maxn; i++){
+        fact[i] = (LL)fact[i-1] * i % mod;
+        infact[i] = (LL)infact[i-1] * qmi(i, mod-2, mod) % mod;
+    }
 }
+
+int C(int a, int b){
+    return (LL)fact[a] * infact[b] % mod * infact[a-b] % mod;
+}
+
+int catalan(int n){
+    return (LL)C(2*n, n) * qmi(n+1, mod-2, mod) % mod;
+}
+
 ```
 
 ## 递推
