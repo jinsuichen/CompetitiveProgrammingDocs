@@ -6,7 +6,7 @@
 
 ```cpp
 const int maxn = 1e5+50; //点的数量
-const int maxm = maxn*2; //边的数量
+const int maxm = 2e5+50; //边的数量
 
 int h[maxn], e[maxm], ne[maxm];
 int top;
