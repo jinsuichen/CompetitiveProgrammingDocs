@@ -734,6 +734,29 @@ $sg(x) = MEX(y_1, y_2, \cdots, y_n)$
 
 对于可以转化为多个状态的博弈，若 $sg(x_1) \oplus sg(x_2) \oplus \cdots\oplus sg(x_n) = 0$ 则必败，否则必胜
 
+```cpp
+int f[120];
+
+int sg(int x){
+    
+    if(f[x] != -1) return f[x];
+    
+    unordered_set<int> S;
+    
+    //计算当前状态可以转化到的所有sg值
+    for(int i = 0; i<x; i++){
+        for(int j = 0; j<x; j++){
+            S.insert(sg(i) ^ sg(j));
+        }
+    }
+    
+    for(int i = 0; ; i++){
+        if(!S.count(i)) return f[x] = i;
+    }
+}
+```
+
 ## Nim博弈
 
 $a_1 \oplus a_2\oplus\cdots\oplus a_n = 0$ 则必败，否则必胜
+
