@@ -760,3 +760,4 @@ int sg(int x){
 
 $a_1 \oplus a_2\oplus\cdots\oplus a_n = 0$ 则必败，否则必胜
 
+​	

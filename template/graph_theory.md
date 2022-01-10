@@ -21,12 +21,12 @@ void add_edge(int a, int b){
     h[a] = top++;
 }
 
-void travel(int u)[
+void travel(int u){
     for(int i = h[u]; i!=-1; i = ne[i]){
         int v = e[i];
         //do something
     }
-]
+}
 ```
 
 # 树的重心
