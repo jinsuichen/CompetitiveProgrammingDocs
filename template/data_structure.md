@@ -364,3 +364,69 @@ int get_hash(int l, int r){
     return h[r] - h[l-1] * p[r-l+1];
 }
 ```
+
+# 线段树
+
+## 单点修改
+
+```cpp
+const int maxn = 5e5+20;
+
+struct Node{
+    int l, r;
+    int tmax, lmax, rmax, sum;
+} tr[maxn * 4];
+
+int a[maxn];
+
+void pushup(Node& u, Node& l, Node& r){
+    u.sum = l.sum + r.sum;
+    u.lmax = max(l.lmax, l.sum + r.lmax);
+    u.rmax = max(r.rmax, l.rmax + r.sum);
+    u.tmax = max({l.tmax, r.tmax, l.rmax+r.lmax});
+}
+
+void pushup(int u){
+    pushup(tr[u], tr[u << 1], tr[u << 1 | 1]);
+}
+
+void build(int u, int l, int r){
+    if(l == r){
+        tr[u] = {l, r, a[l], a[l], a[l], a[l]};
+    } else{
+        tr[u] = {l, r};
+        int mid = l + r >> 1;
+        build(u << 1, l, mid);
+        build(u << 1 | 1, mid+1, r);
+        pushup(u);
+    }
+}
+
+void modify(int u, int x, int v){
+    if(tr[u].l == tr[u].r) tr[u] = {tr[u].l, tr[u].r, v, v, v, v};
+    else{
+        int mid = tr[u].l + tr[u].r >> 1;
+        if(x <= mid) modify(u << 1, x, v);
+        else modify(u << 1 | 1, x, v);
+        pushup(u);
+    }
+}
+
+Node query(int u, int l, int r){
+    if(tr[u].l >= l && tr[u].r <= r) return tr[u];
+    else{
+        int mid = tr[u].l + tr[u].r >> 1;
+        if(r <= mid) return query(u << 1, l, r);
+        else if(l >= mid+1) return query(u << 1 | 1, l, r);
+        else{
+            auto left = query(u << 1, l, r);
+            auto right = query(u << 1 | 1, l, r);
+            Node res;
+            pushup(res, left, right);
+            return res;
+        }
+    }
+}
+```
+
+## 区间修改
