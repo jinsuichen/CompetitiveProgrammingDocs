@@ -1,6 +1,6 @@
 # 关于
 
-包含质数、约数、欧拉函数、快速幂、扩展欧几里得、中国剩余定理、高斯消元、求组合数、容斥原理、博弈论
+包含质数、约数、欧拉函数、快速幂、龟速乘、扩展欧几里得、中国剩余定理、高斯消元、求组合数、容斥原理、博弈论
 
 # 质数
 
@@ -219,6 +219,20 @@ int qmi(int a, int k, int p){
 int inv(int a, int p){
     if(a % p == 0) return -1;
     else return qmi(a, p-2, p);
+}
+```
+
+# 龟速乘
+
+```cpp
+ll qadd(ll a, ll b, ll p){
+    ll res = 0;
+    while(b){
+        if(b & 1) res = (res + a) % p;
+        a = (a + a) % p;
+        b >>= 1;
+    }
+    return res;
 }
 ```
 
