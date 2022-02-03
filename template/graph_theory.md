@@ -125,92 +125,64 @@ E-->I
 ## 朴素做法
 
 ```cpp
-int n, m;
-const int maxn = 520;
-const int INF = 0x3f3f3f3f;
+int n, m; 
+const int maxn = 500+20;
 int g[maxn][maxn];
+void add(int a, int b, int c){
+	g[a][b] = min(g[a][b], c);
+}
 int dist[maxn];
 bool vis[maxn];
-
-void init(){
-    memset(g, 0x3f, sizeof(g));
-}
-
-//需要处理重边
-void add_edge(int a, int b, int val){
-    g[a][b] = min(g[a][b], val);
-}
-
-//不连通返回-1
-int dijkstra(){
-    memset(dist, 0x3f, sizeof(dist));
-    dist[1] = 0;
-    
-    for(int _ = 0; _ < n-1; _++){
-        int t = -1;
-        for(int i = 1; i<=n; i++)
-            if(!vis[i] && (t==-1 || dist[i] < dist[t]))
-                t = i;
-        vis[t] = true;
-        for(int i = 1; i<=n; i++)
-            dist[i] = min(dist[i], dist[t] + g[t][i]);
-    }
-    
-    return dist[n] == INF ? -1 : dist[n];
+void dijkstra(){
+	memset(dist, 0x3f, sizeof dist);
+	dist[1] = 0;
+	for(int k = 0; k<n-1; k++){
+		int t = -1;
+		for(int i = 1; i<=n; i++)
+			if(!vis[i] && (t==-1 || dist[i] < dist[t]))
+				t = i;
+		vis[t] = true;
+		for(int i = 1; i<=n; i++)
+			dist[i] = min(dist[i], dist[t] + g[t][i]);
+	}
 }
 ```
 
 ## 堆优化
 
 ```cpp
-typedef pair<int, int> PII;
+const int maxn = 2e5+20;
+const int maxm = 2e5+20;
+int h[maxn], e[maxm], ne[maxm], w[maxm], top;
+void add(int a, int b, int c){
+	e[top] = b, w[top] = c, ne[top] = h[a], h[a] = top++;
+}
 
-const int maxn = 2e5+50;
-const int maxm = 5e5+20;
-const int INF = 0x3f3f3f3f;
-int n, m;
+struct Node{
+	int u, d;
+	bool operator < (const Node& b) const {
+		return d > b.d;
+	}
+};
 
-int dist[maxn];
 bool vis[maxn];
-
-int h[maxn], e[maxm], weight[maxm], ne[maxm], idx;
-
-void init(){
-    memset(h, -1, sizeof(h));
-}
-
-void add_edge(int a, int b, int w){
-    e[idx] = b; weight[idx] = w; 
-    ne[idx] = h[a];
-    h[a] = idx++;
-}
-
-//不连通返回-1
-int dijkstra(){
-
-    memset(dist, 0x3f, sizeof(dist));
-    dist[1] = 0;
-    priority_queue<PII, vector<PII>, greater<PII> > q;
-    q.push({0, 1});
-
-    while(!q.empty()){
-        PII t = q.top(); q.pop();
-
-        int dis = t.first; int u = t.second;
-        if(vis[u]) continue;
-        vis[u] = true;
-
-        for(int i = h[u]; i!=-1; i = ne[i]){
-            int v = e[i], w = weight[i];
-            if(dist[v] > dist[u] + w){
-                dist[v] = dist[u] + w;
-                q.push({dist[v], v});
-            }
-        }
-
-    }
-
-    return dist[n] == INF ? -1 : dist[n];
+int dist[maxn];
+void dijkstra(){
+	memset(dist, 0x3f, sizeof dist);
+	priority_queue<Node> q; dist[1] = 0; q.push({1, 0});
+	while(!q.empty()){
+		Node t = q.top(); q.pop();
+		int u = t.u;
+		if(vis[u]) continue;
+		vis[u] = true;
+		for(int i = h[u]; ~i; i = ne[i]){
+			int v = e[i];
+			if(dist[v] > dist[u] + w[i]){
+				dist[v] = dist[u] + w[i];
+				q.push({v, dist[v]});
+			}
+		}
+	}
 }
 ```
 
