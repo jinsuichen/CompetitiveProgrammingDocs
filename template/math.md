@@ -101,15 +101,58 @@ vector<int> get_divisors(int n){
 
 ## 约数个数
 
-对于n个数，求它们的约数个数和。将所有数因式分解，再套用下面公式。
+n个数的乘积的约数个数。将所有数因式分解，再套用下面公式。
 
 $(\alpha_1 + 1)(\alpha_2 + 1)\cdots(\alpha_k + 1)$
 
+```cpp
+const int mod = 1e9+7;
+unordered_map<int, int> mp;
+ 
+void divide(int n){
+    for(int i = 2; i<= n/i; i++){
+        while(n%i == 0) n /= i, mp[i]++;
+    }
+    if(n > 1) mp[n]++;
+}
+
+int solve(){
+    long long ans = 1;
+    for(auto p : mp){
+        ans = ans * (p.second + 1) % mod;
+    }
+    return ans;
+}
+```
+
 ## 约数之和
 
-对于n个数，求它们的约数和。将所有数因式分解，再套用下面公式。
+n个数的乘积的约数之和。将所有数因式分解，再套用下面公式。
 
 $(p_1^0 + p_1^1+···+p_1^{\alpha_1})\cdots(p_k^0 + p_k^1+···+p_k^{\alpha_k})$
+
+```cpp
+const int mod = 1e9+7;
+unordered_map<int, int> mp;
+
+void divide(int n){
+    for(int i = 2; i<= n/i; i++){
+        while(n%i == 0) n /= i, mp[i]++;
+    }
+    if(n > 1) mp[n]++;
+}
+
+int solve(){
+    long long ans = 1;
+    for(auto p : mp){
+        long long ret = 1;
+        int a = p.first; int k = p.second;
+        while(k--) ret = (ret*a+1) % mod;
+        ans = ans * ret % mod;
+    }
+    return ans;
+}
+```
 
 ## 欧几里德
 
@@ -186,14 +229,12 @@ void get_eulers(int n){
 ## 快速幂
 
 ```cpp
-typedef long long LL;
-
-int qmi(int a, int k, int p){
+int qmi(int a, int k){
     int res = 1;
     while(k) {
-        if(k & 1) res = (LL)res * a % p;
+        if(k & 1) res = (ll)res * a % mod;
         k >>= 1;
-        a = (LL) a * a % p;
+        a = (ll) a * a % mod;
     }
     return res;
 }
@@ -204,21 +245,9 @@ int qmi(int a, int k, int p){
 前提条件：模数为质数
 
 ```cpp
-typedef long long LL;
-
-int qmi(int a, int k, int p){
-    int res = 1;
-    while(k) {
-        if(k & 1) res = (LL)res * a % p;
-        k >>= 1;
-        a = (LL) a * a % p;
-    }
-    return res;
-}
-
-int inv(int a, int p){
-    if(a % p == 0) return -1;
-    else return qmi(a, p-2, p);
+int inv(int a){
+    if(a % mod == 0) return -1;
+    else return qmi(a, mod-2);
 }
 ```
 
