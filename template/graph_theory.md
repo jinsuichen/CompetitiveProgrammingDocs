@@ -313,6 +313,8 @@ bool spfa(){
 
 # Floyd
 
+## 最短路
+
 ```cpp
 int n, m, k;
 const int INF = 0x3f3f3f3f;
@@ -321,7 +323,7 @@ int g[maxn][maxn];
 
 void init(){
     memset(g, 0x3f, sizeof(g));
-    for(int i = 1; i<=200; i++) g[i][i] = 0;
+    for(int i = 0; i<maxn; i++) g[i][i] = 0;
 }
 
 //需要处理重边
@@ -330,16 +332,127 @@ void add_edge(int a, int b, int w){
 }
 
 //g[i][j] > INF / 2 表示不连通
-void floyd(){
-    
-    for(int k = 1; k<=n; k++){
-        for(int i = 1; i<=n; i++){
-            for(int j = 1; j<=n; j++){
+void floyd(){   
+    for(int k = 1; k<=n; k++)
+        for(int i = 1; i<=n; i++)
+            for(int j = 1; j<=n; j++)
                 g[i][j] = min(g[i][k] + g[k][j] , g[i][j]);
+}
+```
+
+## 传递闭包
+
+```cpp
+void init(){
+    memset(g, 0, sizeof(g));
+}
+
+void floyd(){
+    for(int k = 0; k<n; k++)
+        for(int i = 0; i<n; i++)
+            for(int j = 0; j<n; j++)
+                if(d[i][k] && d[k][j]) d[i][j] = 1;
+}
+```
+
+## 最小环
+
+给定一张无向图，求图中一个至少包含3个点的环，环上的节点不重复，并且环上的边的长度之和最小
+
+```cpp
+int n, m; 
+const int INF = 0x3f3f3f3f;
+const int maxn = 120;
+int g[maxn][maxn], d[maxn][maxn];
+int pos[maxn][maxn];
+vector<int> v; //保存最小环的向量
+int res = INF; //最小环长
+
+void init(){
+    memset(g, 0x3f, sizeof g);
+    for(int i = 0; i<maxn; i++)g[i][i] = 0;
+}
+
+void add(int a, int b, int c){
+    g[a][b] = g[b][a] = min(g[a][b], c);
+}
+
+void get_path(int i, int j){
+    if(pos[i][j] == 0) return;
+    int k = pos[i][j];
+    get_path(i, k);
+    v.push_back(k);
+    get_path(k, j);
+}
+
+void floyd(){
+    memcpy(d, g, sizeof g);
+
+    for(int k = 1; k<=n; k++){
+
+        for(int i = 1; i<k; i++){
+            for(int j = i+1; j<k; j++){
+                if((long long)d[i][j] + g[j][k] + g[k][i] < (long long)res){
+                    res = d[i][j] + g[j][k] + g[k][i];
+                    v.clear();
+                    v.push_back(i);
+                    get_path(i, j);
+                    v.push_back(j);
+                    v.push_back(k);
+                }
             }
         }
+
+        for(int i = 1; i<=n; i++){
+            for(int j = 1; j<=n; j++){
+                if(d[i][j] > d[i][k] + d[k][j]){
+                    d[i][j] = d[i][k] + d[k][j];
+                    pos[i][j] = k;
+                }
+            }
+        }
+
     }
-    
+}
+```
+
+## 恰好经过k条边的最短路
+
+```cpp
+int k, m;
+int n;
+
+const int maxn = 210;
+int g[maxn][maxn];
+int res[maxn][maxn];
+int tmp[maxn][maxn];
+
+void init(){
+    memset(g, 0x3f, sizeof g);
+    //g[i][i]不要初始化成0
+}
+
+void add(int a, int b, int c){
+    g[a][b] = g[b][a] = min(g[a][b], c);
+}
+
+void mul(int c[][maxn], int a[][maxn], int b[][maxn]){
+	memset(tmp, 0x3f, sizeof tmp);
+	for(int k = 1; k<=n; k++)
+		for(int i = 1; i<=n; i++)
+			for(int j = 1; j<=n; j++)
+				tmp[i][j] = min(tmp[i][j], a[i][k] + b[k][j]);
+	memcpy(c, tmp, sizeof tmp);
+}
+
+void qmi(){
+	memset(res, 0x3f, sizeof res);
+	for(int i = 1; i<=n; i++) res[i][i] = 0;
+	while(k){
+		if(k&1) mul(res, res, g);
+		mul(g, g, g);
+		k >>= 1;
+	}
 }
 ```
 
