@@ -365,6 +365,25 @@ int get_hash(int l, int r){
 }
 ```
 
+# 树状数组
+
+```cpp
+const int maxn = 2e5+20;
+int tr[maxn];
+
+int lowbit(int x){
+    return x&-x;
+}
+void add(int x, int c){
+    for(int i = x; i<maxn; i+=lowbit(i)) tr[i] += c;
+}
+int sum(int x){
+    int ret = 0;
+    for(int i = x; i>0; i-=lowbit(i)) ret += tr[i];
+    return ret;
+}
+```
+
 # 线段树
 
 ## 单点修改
