@@ -264,50 +264,39 @@ int spfa(){
 
 ## 判断负环
 
+统计当前每个点最短路包含的边数，如果边数大于等于n说明有负环。
+
 ```cpp
 const int maxn = 1e5+50;
 const int maxm = 1e5+50;
-const int INF = 0x3f3f3f3f;
 int n, m;
 
 int dist[maxn], cnt[maxn];
 bool vis[maxn];
 
-int h[maxn], e[maxm], weight[maxm], ne[maxm], idx;
-
-void init(){
-    memset(h, -1, sizeof(h));
-}
-
-void add_edge(int a, int b, int w){
-    e[idx] = b; weight[idx] = w; 
-    ne[idx] = h[a];
-    h[a] = idx++;
-}
-
 bool spfa(){
     
     queue<int> q;
-    for(int i = 1; i<=n; i++){
-        q.push(i);
-        vis[i] = true;
-    }
-    
-    while(!q.empty()){
-        int u = q.front(); q.pop(); vis[u] = false;
-        
-        for(int i = h[u]; i!=-1; i = ne[i]){
-            int v = e[i], w = weight[i];
-            if(dist[v] > dist[u] + w){
-                dist[v] = dist[u] + w;
-                cnt[v] = cnt[u] + 1;
-                if(cnt[v] >= n) return true;
-                if(!vis[v]) q.push(v), vis[v] = true;
-            }
-        }
-    }
-    
-    return false;
+	for(int i = 1; i<=n; i++){
+		q.push(i);
+		vis[i] = true;
+	}
+	
+	while(!q.empty()){
+		int u = q.front(); q.pop(); vis[u] = false;
+		
+		for(int i = h[u]; ~i; i = ne[i]){
+			int v = e[i];
+			if(dist[v] > dist[u] + w[i]){
+				dist[v] = dist[u] + w[i];
+				cnt[v] = cnt[u] + 1;
+				if(cnt[v] >= n) return true;
+				if(!vis[v]) q.push(v), vis[v] = true;
+			}
+		}
+	}
+	
+	return false;
 }
 ```
 
