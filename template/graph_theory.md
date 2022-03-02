@@ -266,6 +266,11 @@ int spfa(){
 
 统计当前每个点最短路包含的边数，如果边数大于等于n说明有负环。
 
+加速trick:
+
+- 更新数超过了2n或3n次，判定为存在负环
+- 将队列改为栈
+
 ```cpp
 const int maxn = 1e5+50;
 const int maxm = 1e5+50;
