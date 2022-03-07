@@ -353,7 +353,7 @@ void init(){
 }
 
 //需要处理重边
-void add_edge(int a, int b, int w){
+
     g[a][b] = min(g[a][b], w);
 }
 
@@ -678,6 +678,96 @@ int solve(){
     }
     
     return res;
+}
+```
+
+# 最近公共祖先
+
+## 倍增法（在线）
+
+$0$ 号结点的深度为 $0$，为哨兵结点，注意不要占用
+
+```cpp
+int fa[maxn][30];
+int depth[maxn];
+
+void bfs(int root){
+    memset(depth, 0x3f, sizeof depth);
+    depth[0] = 0; depth[root] = 1;
+    queue<int> q; q.push(root);
+    while(!q.empty()){
+        int u = q.front(); q.pop();
+        for(int i = h[u]; ~i; i = ne[i]) {
+            int v = e[i];
+            if(depth[v] > depth[u] + 1){
+                depth[v] = depth[u] + 1;
+                q.push(v);
+                fa[v][0] = u;
+                for(int k = 1; k<=15; k++)
+                    fa[v][k] = fa[fa[v][k-1]][k-1];
+            }
+        }
+    }
+}
+
+int lca(int a, int b){
+    if(depth[a] < depth[b]) swap(a, b);
+    for(int k = 15; k>=0; k--)
+        if(depth[fa[a][k]] >= depth[b])
+            a = fa[a][k];
+    if(a == b) return a;
+    for(int k = 15; k>=0; k--)
+        if(fa[a][k] != fa[b][k])
+            a = fa[a][k], b = fa[b][k];
+    return fa[a][0];
+}
+```
+
+## Tarjan（离线）
+
+复杂度 $O(n+q)$ $n$ 为点数量，$q$ 为询问数量
+
+访问过的点标记为2，访问路径上的点标记为1，未访问的点为0
+
+```cpp
+//并查集
+int p[maxn];
+int find(int x){
+    if(x != p[x]) p[x] = find(p[x]);
+    return p[x];
+}
+
+//存储询问
+//对于询问a, b
+//query[a].push_back(Node{i, b})
+//query[b].push_back(Node{i, a})
+struct Node{
+    int idx, other;
+};
+vector<Node> query[maxn];
+
+int ans[maxn];
+
+int st[maxn];
+void tarjan(int u){
+    st[u] = 1;
+    for(int i = h[u]; ~i; i = ne[i]){
+        int v = e[i];
+        if(st[v] == 0){
+            tarjan(v);
+            p[v] = u;
+        }
+    }
+
+    for(auto item : query[u]){
+        int idx = item.idx, v = item.other;
+        if(st[v] == 2){
+            int lca = find(v);
+            ans[idx] = lca;
+        }
+    }
+
+    st[u] = 2;
 }
 ```
 
