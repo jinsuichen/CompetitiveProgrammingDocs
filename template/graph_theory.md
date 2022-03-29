@@ -771,3 +771,118 @@ void tarjan(int u){
 }
 ```
 
+## RMQ
+
+dfs整棵树，记录dfs序列，求任意x与y之间的最小值。
+
+# 严格次小生成树
+
+
+# Trajan
+
+## 有向图强连通分量
+
+```cpp
+int dfn[maxn], low[maxn], timestamp;
+int id[maxn], sz[maxn], scc_cnt;
+int stk[maxn], top; bool in_stk[maxn];
+
+void tarjan(int u){
+    dfn[u] = low[u] = ++timestamp;
+    stk[++top] = u, in_stk[u] = true;
+    for(int i = h[u]; ~i; i = ne[i]){
+        int v = e[i];
+        if(!dfn[v]) {
+            tarjan(v);
+            low[u] = min(low[u], low[v]);
+        } else if(in_stk[v]) low[u] = min(low[u], dfn[v]);
+    }
+
+    if(dfn[u] == low[u]){
+        ++scc_cnt;
+        int y;
+        do{
+            y = stk[top--];
+            in_stk[y] = false;
+            id[y] = scc_cnt;
+            sz[scc_cnt]++;
+        } while(y != u);
+    }
+}
+```
+
+## 无向图边双连通分量
+
+```cpp
+int dfn[maxn], low[maxn], timestamp;
+int stk[maxn], top;
+int id[maxn], dcc_cnt;
+bool is_bridge[maxm];
+
+void tarjan(int u, int from) {
+    dfn[u] = low[u] = ++timestamp;
+    stk[++top] = u;
+
+    for(int i = h[u]; ~i; i = ne[i]) {
+        int v = e[i];
+        if(!dfn[v]) {
+            tarjan(v, i);
+            low[u] = min(low[u], low[v]);
+            if(dfn[u] < low[v]) 
+                is_bridge[i] = is_bridge[i^1] = true;
+        } else if(i != (from ^ 1)) {
+            low[u] = min(low[u], dfn[i]);
+        }
+    }
+
+    if(dfn[u] == low[u]) {
+        ++ dcc_cnt;
+        int y;
+        do {
+            y = stk[top--];
+            id[y] = dcc_cnt;
+        } while(y != u);
+    }
+}
+```
+
+## 无向图点双连通分量
+
+```cpp
+int dfn[maxn], low[maxn], timestamp;
+int stk[maxn], top;
+vector<int> dcc[maxn]; int dcc_cnt;
+bool cut[maxn];
+int root;
+
+void tarjan(int u) {
+    dfn[u] = low[u] = ++timestamp;
+    stk[++top] = u;
+
+    if(u == root && h[u] == -1) {
+        dcc_cnt++;
+        dcc[dcc_cnt].push_back(u);
+        return;
+    }
+
+    int cnt = 0;
+    for(int i = h[u]; ~i; i = ne[i]) {
+        int v = e[i];
+        if(!dfn[v]) {
+            tarjan(v);
+            low[u] = min(low[u], low[v]);
+            if(dfn[u] <= low[v]) {
+                cnt++;
+                if(u != root || cnt > 1) cut[u] = true;
+                ++dcc_cnt;
+                int y;
+                do {
+                    y = stk[top--];
+                    dcc[dcc_cnt].push_back(y);
+                } while(y != v);
+                dcc[dcc_cnt].push_back(u);
+            }
+        } else low[u] = min(low[u], dfn[v]);
+    }
+}
+```
