@@ -886,3 +886,64 @@ void tarjan(int u) {
     }
 }
 ```
+
+# 线段树建图
+
+可以建立$O(nlogn)$条边实现点与区间、区间与区间相互连边
+
+线段树的叶子节点为图上的真实点、非叶子结点为图上的虚拟点，注意虚拟点的编号不能与真实点编号重复。
+
+假设题目给定图中有n个点，使用下面代码建立两颗线段树。
+```cpp
+idx = n;
+rt1 = ++idx;
+build(rt1, 1, n, 0);
+rt2 = ++idx;
+build(rt2, 1, n, 1);
+```
+
+使用 ```add(rt1, 1, n, x, l, r, val, 0)``` 从点x向区间$[l, r]$建立边权为val的有向边。
+
+使用 ```add(rt2, 1, n, x, l, r, val, 1)``` 从区间$[l, r]$向点x建立边权为val的有向边。
+
+```cpp
+const int maxn = 2e6+20;
+int n;
+
+int h[maxn], e[maxn], ne[maxn], w[maxn], top;
+void add(int a, int b, int c, bool flag) {
+    if(flag) swap(a, b);
+    e[top] = b, w[top] = c, ne[top] = h[a], h[a] = top++;
+}
+
+int lson[maxn], rson[maxn];
+int rt1, rt2, idx;
+void build(int p, int l, int r, bool flag) {
+    if(l == r) return;
+    int mid = l + r >> 1;
+    if(!lson[p]) lson[p] = ++idx;
+    if(!rson[p]) rson[p] = ++idx;
+    if(l + 1 == r) {
+        lson[p] = l;
+        rson[p] = r;
+    } else if(l + 2 == r) rson[p] = r;
+    build(lson[p], l, mid, flag);
+    build(rson[p], mid+1, r, flag);
+    add(p, lson[p], 0, flag);
+    add(p, rson[p], 0, flag);
+}
+
+void add(int p, int l, int r, int u, int x, int y, int val, int flag) {
+    if(l == x && r == y) {
+        add(u, p, val, flag);
+        return;
+    }
+    int mid = l + r >> 1;
+    if(y <= mid) add(lson[p], l, mid, u, x, y, val, flag);
+    else if(x > mid) add(rson[p], mid+1, r, u, x, y, val, flag);
+    else {
+        add(lson[p], l, mid, u, x, mid, val, flag);
+        add(rson[p], mid+1, r, u, mid+1, y, val, flag);
+    }
+}
+```
