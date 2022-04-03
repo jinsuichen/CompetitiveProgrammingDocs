@@ -583,18 +583,15 @@ int kruskal(){
 }
 ```
 
-# 染色法判定二分图
+# 二分图
+
+一个图是二分图，等价于图中不含有奇数环，等价于染色法不存在矛盾。
+
+## 染色法判定二分图
 
 复杂度 $O(n+m)$
 
-一个图是二分图当且仅当图中不含有奇数环。
-
 ```cpp
-const int maxn = 1e5+20;
-const int maxm = 2e5+20;
-
-int n, m;
-int h[maxn], e[maxm], ne[maxm]; int top;
 int color[maxn];
 
 void init(){
@@ -602,82 +599,80 @@ void init(){
     memset(h, -1, sizeof(h));
 }
 
-void add_edge(int u, int v){
-    e[top] = v;
-    ne[top] = h[u];
-    h[u] = top++;
-}
-
 bool dfs(int u, int c){
-    
     if(color[u] != -1) return color[u] == c;
-    
     color[u] = c;
-    for(int i = h[u]; i!=-1; i = ne[i]){
+    for(int i = h[u]; ~i; i = ne[i]){
         if(!dfs(e[i], c^1)) 
             return false;
     }
     return true;
 }
 
-bool solve(){
-    
-    for(int i = 1; i<=n; i++){
+bool solve(){ 
+    for(int i = 1; i<=n; i++)
         if(color[i] == -1) 
             if(!dfs(i, 0))
                 return false;
-    }
     return true;
 }
 ```
 
-# 匈牙利算法
+## 匈牙利算法求最大匹配
 
 复杂度 $O(nm)$ ，但实际运行时间一般远小于 $O(nm)$ 。
+建图时只需要建立从左部指向右部的边。
+
+对于二分图：最大匹配数 = 最小点覆盖 = 总点数-最大独立集 = 总点数-最小路径覆盖
+
+### 增广路径
+定义：左部非匹配点 $\rightarrow$ 非匹配边 $\rightarrow$ 匹配边 $\rightarrow$ $\dots$ $\rightarrow$ 匹配边 $\rightarrow$ 非匹配边 $\rightarrow$ 右部非匹配点
+二分图最大匹配等价于该匹配无增广路径。
+
+### 最小点覆盖
+定义：给定任意无向图，选出最少的点，使得任意一条边的两个端点中至少有一个被选出。
+在二分图中，最小点覆盖 = 最大匹配数
+
+### 最大独立集
+定义：给定任意无向图，选出最多的点，使得任意两点之间没有边。
+
+### 最大团
+定义：给定任意无向图，选出最多的点，使得任意两点之间均有边。
+
+### 最小路径点覆盖
+定义：给定DAG，用最少的互不相交的路径将所有点覆盖。互不相交指点和边都不重复。
+将原图中的点 $i$ 拆分为 $i$ 与 $i'$ 对于边 $i\rightarrow j$ 建立新边 $i\rightarrow j'$ ，则新图为G'。最小路径点覆盖为 G点数 - G'最大匹配
+编码时不需要建新边，只需要将边 $i\rightarrow j$ 看作 $i\rightarrow j'$ 即可。
+
+### 最小路径可重复覆盖
+定义：给定DAG，用最少的路径将所有点覆盖。
+对原图求传递闭包，原图的最小路径可重复覆盖等于新图的最小路径点覆盖。
 
 ```cpp
-const int maxn = 520;
-const int maxm = 1e5+20;
-
 int n1, n2, m;
-int h[maxn], ne[maxm], e[maxm], top;
 bool vis[maxn];
 int match[maxn];
 
-void init(){
-    memset(h, -1, sizeof(h));
-}
-
-void add_edge(int a, int b){
-    e[top] = b;
-    ne[top] = h[a];
-    h[a] = top++;
-}
-
-bool find(int x){
-    
-    for(int i = h[x]; i!=-1; i = ne[i]){
-        int j = e[i];
-        if(vis[j]) continue;
-        vis[j] = true;
-        if(match[j] == 0 || find(match[j])){
-            match[j] = x;
+bool find(int u) {
+    for(int i = h[u]; ~i; i = ne[i]) {
+        int v = e[i];
+        if(vis[v]) continue;
+        vis[v] = true;
+        if(match[v] == 0 || find(match[v])) {
+            match[v] = u;
             return true;
         }
     }
-    
     return false;
 }
 
-int solve(){
-    int res = 0;
-    
-    for(int i = 1; i<=n1; i++){
+int solve() {
+    int ret = 0;
+    for(int u = 1; u<=n1; u++) {
         memset(vis, 0, sizeof(vis));
-        if(find(i)) res++;
+        if(find(u)) ret++;
     }
-    
-    return res;
+    return ret;
 }
 ```
 
