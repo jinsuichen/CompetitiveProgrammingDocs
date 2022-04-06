@@ -1,6 +1,6 @@
 # 关于
 
-包含邻接表、树的重心、有向图的拓扑排序、Dijkstra、bellman-ford、spfa、Floyd、Prim、Fruskal、染色法判定二分图、匈牙利算法。
+包含邻接表、树的重心、拓扑排序、欧拉路径、最短路、生成树、二分图、Tarjan、线段树建图。
 
 # 邻接表
 
@@ -92,6 +92,121 @@ bool topsort(vector<int>& ans){
     }
     
     return cnt == n;
+}
+```
+
+# 欧拉路径
+
+模板中的```ans```数组保存的是边的id，若要输出点的编号，需要输出```e[ans[i]]```。
+
+## 有向图
+保证图连通的情况下
+1. 存在**欧拉路径**的充要条件：要么所有点的出度均等与入度；要么一个点满足出度比入度多1（起点），一个点满足入度比出度多1（终点），其余所有点入度等于出度。
+2. 存在**欧拉回路**的充要条件：所有点入度等于出度。
+
+对于有向图，若需要字典序最小，则对于点 $u$ ，遍历临点 $v$ 的顺序需要从小到大。可以将边离线按照 $v$ 降序排序，再用邻接表存储，则保证遍历顺序为升序。
+
+```cpp
+int din[maxn], dout[maxn]；
+int ans[maxm], cnt;
+
+void dfs(int u) {
+    for(int &i = h[u]; ~i;) {
+        int t = i;
+        int v = e[i];
+        i = ne[i];
+        dfs(v);
+        ans[++cnt] = t;
+    }
+}
+
+int s;
+bool solve() {
+    int cnt_in = 0, cnt_out = 0, cnt_other = 0;
+    for(int i = 1; i<=n; i++) {
+        if(din[i] == dout[i]) cnt_other++;
+        if(din[i] == dout[i] + 1) cnt_out++;
+        if(din[i] + 1 == dout[i]) cnt_in++;
+    }
+    bool f1 = cnt_in == 1 && cnt_out == 1 && cnt_other == n-2;
+    bool f2 = cnt_in == 0 && cnt_out == 0 && cnt_other == n;
+    // f1 = false; 求欧拉回路时将此语句打开
+    if(!f1 && !f2) return false;
+
+    s = 1; //图中无任何边时从1号点dfs防止re
+    for(int i = 1; i<=n; i++) {
+        if(f1 && din[i] + 1 == dout[i]) {s = i; break;}
+        if(f2 && din[i]+dout[i]) {s = i; break;}
+    }
+    dfs(s);
+
+    if(cnt < m) return false;
+
+    return true;
+}
+```
+
+## 无向图
+保证图连通的情况下
+1. 存在**欧拉路径**的充要条件：度数为奇数的点只能有0或2个。
+2. 存在**欧拉回路**的充要条件：度数为奇数的点只能有0个。
+
+对于无向图，若需要字典序最小，需要使用```set```存图，dfs如下。
+```cpp
+void dfs(int u) {
+    while(g[u].size()) {
+        int v= *g[u].begin();
+        g[u].erase(v), g[v].erase(u);
+        dfs(v);
+        ans[++cnt] = u;
+    }
+}
+```
+
+```cpp
+int de[maxn];
+int used[maxn];
+int ans[maxm], cnt;
+
+void dfs(int u) {
+    for(int &i = h[u]; ~i;) {
+        if (used[i]) {
+            i = ne[i];
+            continue;
+        }
+        used[i] = true;
+        used[i ^ 1] = true;
+
+        int t = i;
+        int v = e[i];
+        i = ne[i];
+        dfs(v);
+
+        ans[ ++ cnt] = t;
+    }
+}
+
+int s;
+bool solve() {
+    int cnt_odd = 0;
+    for(int i = 1; i<=n; i++) {
+        if(de[i]&1) cnt_odd++;
+    }
+    bool f1 = cnt_odd == 2;
+    bool f2 = cnt_odd == 0;
+    // f1 = false; 求欧拉回路时将此语句打开
+    if(!f1 && !f2) return false;
+
+    s = 1; //图中无任何边时从1号点dfs防止re
+    for(int i = 1; i<=n; i++) {
+        if(f1 && de[i]&1) {s = i; break;}
+        if(f2 && de[i]) {s = i; break;}
+    }
+    dfs(s);
+
+    if(cnt < m) return false;
+
+    return true;
 }
 ```
 
