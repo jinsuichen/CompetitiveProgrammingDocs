@@ -1,6 +1,6 @@
 # 关于
 
-包含邻接表、树的重心、拓扑排序、欧拉路径、最短路、生成树、二分图、Tarjan、线段树建图。
+包含邻接表、树的重心、拓扑排序、欧拉路径、最短路、生成树、二分图、Tarjan、线段树建图、网络流。
 
 # 邻接表
 
@@ -1055,5 +1055,108 @@ void add(int p, int l, int r, int u, int x, int y, int val, int flag) {
         add(lson[p], l, mid, u, x, mid, val, flag);
         add(rson[p], mid+1, r, u, mid+1, y, val, flag);
     }
+}
+```
+
+# 网络流基本概念
+
+## 流网络
+给定有向图 $G=(V, E)$ ，存在两个特殊的点称为源点 $s$ 和汇点 $e$ ，每条边 $u \rightarrow v$ 有一个属性容量 $c(u, v)$ 。为了简化问题，假定每条边不存在反向边。
+
+## 可行流
+一个可行流即给每一个边 $u \rightarrow v$ 一个流量 $f(u,v)$ 满足以下两个条件：
+1. 满足容量限制，即 $0 \leq f(u, v) \leq c(u, v)$
+2. 流量守恒。源点和汇点流量相等，中间节点不存储流量。即 $ \forall x \in V / \{s,t\} \sum\limits_{(v, x) \in E} f(v, x) = \sum\limits_{(x, v) \in E} f(x, v) $
+
+从源点到汇点的流量值为每秒源点流出的流量 $\vert f \vert = \sum\limits_{(s, v) \in E} f(s, v) - \sum\limits_{(v, s) \in E} f(v, s) $ 
+
+最大流就是指最大可行流。
+
+## 残留网络
+残留网络 $G_f$ 是针对流网络的某一条可行流而言的一个流网络。$V_f = V, E_f = E 和 E 中所有反向边$ 。
+$$ c'(u, v)=\left\{
+\begin{aligned}
+& c(u, v) - f(u, v) & (u, v) \in E \\
+& f(v, u) & (v, u) \in E 
+\end{aligned}
+\right.
+$$
+
+原网络的可行流 $f$ 与残留网络的可行流 $f'$ 相加（对应边相加，反向边相减）为原网络 $G$ 的一个可行流。并且满足 $\vert f + f' \vert = \vert f \vert + \vert f' \vert$
+
+## 增广路径
+在残留网络里，从原点沿着容量大于0的边走，如果走到汇点，则称这条路径为增广路径。
+一个流网络 $G$ 的可行流 $f$ ，其残留网络 $G_f$ 如果没有增广路径，可以断定 $f$ 是一个最大流。
+
+## 割
+将点集 $V$ 分为 $S$ 和 $T$ 两部分，使得 $S \cup T = V, S \cap T = \phi, s \in S, t \in T$ 。
+
+割的容量：$c(S, T) = \sum\limits_{u \in S} \sum\limits_{v \in T} c(u, v)$
+
+割的流量：$f(S, T) = \sum\limits_{u \in S} \sum\limits_{v \in T} f(u, v) - \sum\limits_{u \in T} \sum\limits_{v \in S} f(u, v) $
+
+割的容量只计算 $S$ 指向 $T$ 的边，不计算 $T$ 指向 $S$ 的边。最小割指容量最小的割。
+
+$ \forall [S, T], f(S,T) \leq c(S,T), f(S, T) = \vert f \vert $
+
+## 最大流最小割定理
+
+以下三个命题相互等价
+1. 可行流 $f$ 是最大流
+2. 可行流 $f$ 的残留网络 $G_f$ 中不存在增广路
+3. 存在某个割 $ [S, T], \vert f \vert = c(S, T) $
+
+# 求最大流
+
+建边时，$ a \rightarrow b $ 建立长度为 $ c(a, b) $ 的边，$ b \rightarrow a $ 建立长度为 $ 0 $ 的反向边。
+
+## EK
+
+适用于点数+边数在 $10^3 - 10^4$ 范围内的情况。
+
+```d[]``` 为起点到某点路径上的的最小边权，```pre[]``` 为一个点的前驱边的id。
+
+```cpp
+int n, m, s, t;
+int h[maxn], e[maxm], f[maxm], ne[maxm], top;
+int d[maxn], pre[maxn];
+bool vis[maxn];
+
+void add(int a, int b, int c) {
+    e[top] = b, f[top] = c, ne[top] = h[a], h[a] = top++;
+}
+
+bool bfs() {
+
+    memset(vis, 0, sizeof vis);
+
+    queue<int> q;
+    q.push(s), vis[s] = true, d[s] = INF;
+
+    while(q.size()) {
+        int u = q.front(); q.pop();
+        for(int i = h[u]; ~i; i = ne[i]) {
+            int v = e[i];
+            if(!vis[v] && f[i]) {
+                vis[v] = true;
+                d[v] = min(d[u], f[i]);
+                pre[v] = i;
+                if(v == t) return true;
+                q.push(v);
+            }
+        }
+    }
+
+    return false;
+}
+
+int EK() {
+    int r = 0;
+    while(bfs()) {
+        r += d[t];
+        for(int i = t; i != s; i = e[pre[i]^1]) 
+            f[pre[i]] -= d[t], f[pre[i]^1] += d[t];
+    }
+    return r;
 }
 ```
