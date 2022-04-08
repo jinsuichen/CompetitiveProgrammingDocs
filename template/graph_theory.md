@@ -923,6 +923,8 @@ void tarjan(int u){
 
 ## 无向图边双连通分量
 
+性质：在边连通分量中，任意两点之间存在两条不相交（边不相交）的路径。
+
 ```cpp
 int dfn[maxn], low[maxn], timestamp;
 int stk[maxn], top;
@@ -941,7 +943,7 @@ void tarjan(int u, int from) {
             if(dfn[u] < low[v]) 
                 is_bridge[i] = is_bridge[i^1] = true;
         } else if(i != (from ^ 1)) {
-            low[u] = min(low[u], dfn[i]);
+            low[u] = min(low[u], dfn[v]);
         }
     }
 
@@ -962,7 +964,7 @@ void tarjan(int u, int from) {
 int dfn[maxn], low[maxn], timestamp;
 int stk[maxn], top;
 vector<int> dcc[maxn]; int dcc_cnt;
-bool cut[maxn];
+bool is_cut[maxn];
 int root;
 
 void tarjan(int u) {
@@ -983,7 +985,7 @@ void tarjan(int u) {
             low[u] = min(low[u], low[v]);
             if(dfn[u] <= low[v]) {
                 cnt++;
-                if(u != root || cnt > 1) cut[u] = true;
+                if(u != root || cnt > 1) is_cut[u] = true;
                 ++dcc_cnt;
                 int y;
                 do {
