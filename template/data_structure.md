@@ -74,7 +74,8 @@ void solve(){
         while(j && s[i] != p[j+1]) j = nxt[j];
         if(s[i] == p[j+1]) j++;
         if(j == m){
-            printf("%d ", i-m); // i-m 为模式串在原串中的起始下标
+            printf("%d ", i-m); 
+            // i-m 为模式串在原串中的起始下标（此处下标从0开始）
             //do something
             j = nxt[j];
         }
