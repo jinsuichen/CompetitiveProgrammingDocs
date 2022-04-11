@@ -118,6 +118,24 @@ int bsearch_2(int l, int r){
 }
 ```
 
+# 三分
+
+答案是[l, r]之间的值，需要再将[l, r]check一遍。
+
+1. \>  极小值点，区间左部分
+2. \>= 极小值点，区间右部分
+3. <  极大值点，区间左部分
+3. <= 极大值，区间右部分
+
+```cpp
+while(r - l > 3) {
+    int len = (r - l + 1) / 3 ;
+    int lmid = l + len , rmid = r - len ;
+    if(func(lmid) > func(rmid)) l = lmid;
+    else  r = rmid;
+}
+```
+
 # 高精度
 
 支持加法和乘法
