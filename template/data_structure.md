@@ -387,34 +387,37 @@ int sum(int x){
 
 # 线段树
 
-## 单点修改
-
 ```cpp
-const int maxn = 5e5+20;
+const int maxn = 1e5+20;
 
-struct Node{
-    int l, r;
-    int tmax, lmax, rmax, sum;
+int w[maxn];
+struct Node {
+    int l, r, sum, add;
 } tr[maxn * 4];
 
-int a[maxn];
 
-void pushup(Node& u, Node& l, Node& r){
+void pushup(Node& u, Node& l, Node& r) {
     u.sum = l.sum + r.sum;
-    u.lmax = max(l.lmax, l.sum + r.lmax);
-    u.rmax = max(r.rmax, l.rmax + r.sum);
-    u.tmax = max({l.tmax, r.tmax, l.rmax+r.lmax});
 }
-
-void pushup(int u){
+void pushup(int u) {
     pushup(tr[u], tr[u << 1], tr[u << 1 | 1]);
 }
 
-void build(int u, int l, int r){
-    if(l == r){
-        tr[u] = {l, r, a[l], a[l], a[l], a[l]};
-    } else{
-        tr[u] = {l, r};
+void pushdown(Node& u, Node& l, Node& r) {
+    if(u.add) {
+        l.add += u.add, l.sum += (l.r - l.l + 1) * u.add;
+        r.add += u.add, r.sum += (r.r - r.l + 1) * u.add;
+        u.add = 0;
+    }
+}
+void pushdown(int u) {
+    pushdown(tr[u], tr[u << 1], tr[u << 1 | 1]);
+}
+
+void build(int u, int l, int r) {
+    if(l == r) tr[u] = {l, r, w[l], 0};
+    else {
+        tr[u] = {l, r, 0, 0};
         int mid = l + r >> 1;
         build(u << 1, l, mid);
         build(u << 1 | 1, mid+1, r);
@@ -422,31 +425,33 @@ void build(int u, int l, int r){
     }
 }
 
-void modify(int u, int x, int v){
-    if(tr[u].l == tr[u].r) tr[u] = {tr[u].l, tr[u].r, v, v, v, v};
-    else{
+void modify(int u, int l, int r, int d) {
+    if(tr[u].l >= l && tr[u].r <= r) {
+        tr[u].sum += (tr[u].r - tr[u].l + 1) * d;
+        tr[u].add += d;
+    } else {
+        pushdown(u);
         int mid = tr[u].l + tr[u].r >> 1;
-        if(x <= mid) modify(u << 1, x, v);
-        else modify(u << 1 | 1, x, v);
+        if(l <= mid) modify(u << 1, l, r, d);
+        if(r >= mid+1) modify(u << 1 | 1, l, r, d);
         pushup(u);
     }
 }
 
-Node query(int u, int l, int r){
+Node query(int u, int l, int r) {
     if(tr[u].l >= l && tr[u].r <= r) return tr[u];
-    else{
+    else {
+        pushdown(u);
         int mid = tr[u].l + tr[u].r >> 1;
         if(r <= mid) return query(u << 1, l, r);
         else if(l >= mid+1) return query(u << 1 | 1, l, r);
-        else{
+        else {
             auto left = query(u << 1, l, r);
             auto right = query(u << 1 | 1, l, r);
-            Node res;
-            pushup(res, left, right);
-            return res;
+            Node ret = {0, 0, 0, 0};
+            pushup(ret, left, right);
+            return ret;
         }
     }
 }
 ```
-
-## 区间修改
