@@ -1108,11 +1108,15 @@ $ \forall [S, T], f(S,T) \leq c(S,T), f(S, T) = \vert f \vert $
 2. 可行流 $f$ 的残留网络 $G_f$ 中不存在增广路
 3. 存在某个割 $ [S, T], \vert f \vert = c(S, T) $
 
-# 求最大流
+# 求最大流模板
 
 建边时，$ a \rightarrow b $ 建立长度为 $ c(a, b) $ 的边，$ b \rightarrow a $ 建立长度为 $ 0 $ 的反向边。
 
+注意边数开双倍空间。
+
 ## EK
+
+复杂度 $O(n \cdot m^2)$
 
 适用于点数+边数在 $10^3 - 10^4$ 范围内的情况。
 
@@ -1162,3 +1166,317 @@ int EK() {
     return r;
 }
 ```
+
+## Dinic
+
+复杂度 $O(n^2 \cdot m)$
+
+适用于点数+边数在 $10^4 - 10^5$ 范围内的情况。
+
+```d[]``` 为分层图层数，```cur[]```为当前弧优化。
+
+```cpp
+int n, m, s, t;
+int h[maxn], e[maxm], f[maxm], ne[maxm], top;
+int d[maxn], cur[maxn];
+
+void add(int a, int b, int c) {
+    e[top] = b, f[top] = c, ne[top] = h[a], h[a] = top++;
+}
+
+bool bfs() {
+    queue<int> q;
+    memset(d, -1, sizeof d);
+    q.push(s), d[s] = 0, cur[s] = h[s];
+    while(q.size()) {
+        int u = q.front(); q.pop();
+        for(int i = h[u]; ~i; i = ne[i]) {
+            int v = e[i];
+            if(d[v] == -1 && f[i]) {
+                d[v] = d[u] + 1;
+                cur[v] = h[v];
+                if(v == t) return true;
+                q.push(v);
+            }
+        }
+    }
+
+    return false;
+}
+
+int find(int u, int limit) {
+    if(u == t) return limit;
+    int flow = 0;
+    for(int i = cur[u]; ~i && flow < limit; i = ne[i]) {
+        cur[u] = i;
+        int v = e[i];
+        if(d[v] == d[u] + 1 && f[i]) {
+            int k = find(v, min(f[i], limit - flow));
+            if(!k) d[v] = -1;
+            f[i] -= k, f[i^1] += k, flow += k;
+        }
+    }
+    return flow;
+}
+
+int dinic() {
+    int r = 0, flow;
+    while(bfs()) while(flow = find(s, INF)) r += flow;
+    return r;
+}
+```
+
+# 最大流问题
+
+## 二分图匹配
+
+边数为左部和右部点的点数与点数乘积的和的二倍。
+
+### 二分图单匹配
+
+建立虚拟源点和汇点。
+
+源点向左部中每一个点连接容量为 $1$ 的边，右部中每一个点向汇点连接容量为 $1$ 的边，从左部向右部连接长度为 $1$ 的边。
+
+该网络的最大流即为最大匹配。
+
+
+### 二分图多匹配
+
+建立虚拟源点和汇点。
+
+源点向左部中每一个点连接容量为匹配上限的边，右部中每一个点向汇点连接容量为匹配上限的边，从左部向右部连接长度为 $1$ 的边。
+
+该网络的最大流即为最大匹配。
+
+## 上下界可行流
+
+边数为点数与边数和的二倍。
+
+### 无源汇上下界可行流（循环流）
+
+给一个网络，求一个流满足：每条边 $i$ 的流量在 $[low(i), up(i)]$ 之间。
+
+建立新图，新边容量为 $up - low$ , ```A[i]``` 表示点 $i$ 流出的流量。
+
+建立虚拟源点 $s$ 汇点 $t$ 。流入大于流出点，连 $s$ 到 $i$ ，容量为 $A[i]$ ；流出小于流入点，连 $i$ 到 $t$ ，容量为 $-A[i]$
+
+判断流量守恒条件```dinic() == tot```。所有附加边的最大流满流，说明原图存在可行流
+
+```cpp
+int n, m, s, t;
+int h[maxn], e[maxm], f[maxm], l[maxm], ne[maxm], top;
+int d[maxn], cur[maxn], A[maxn];
+
+void add(int a, int b, int low, int up) {
+    e[top] = b, l[top] = low, f[top] = up - low, ne[top] = h[a], h[a] = top++;
+}
+
+void solve() {
+
+    memset(h, -1, sizeof h);
+    cin >> n >> m; s = 0; t = n+1;
+
+    for(int i = 0; i<m; i++) {
+        int a, b, c, d; cin >> a >> b >> c >> d;
+        add(a, b, c, d); add(b, a, 0, 0);
+        A[a] -= c; A[b] += c;
+    }
+
+    int tot = 0;
+    for(int i = 1; i<=n; i++) 
+        if(A[i] > 0) add(s, i, 0, A[i]), add(i, s, 0, 0), tot += A[i];
+        else if(A[i] < 0) add(i, t, 0, -A[i]), add(t, i, 0, 0);
+
+    if(dinic() != tot) cout << "NO\n";
+    else {
+        // 输出原图可行流
+        cout << "YES\n";
+        for(int i = 0; i<m*2; i+=2) cout << f[i^1] + l[i] << "\n";
+    }
+
+}
+```
+
+### 有源汇上下界可行流
+
+从真正的汇点 $T$ 向源点 $S$ 连接容量为正无穷的边，即转化为上一个问题。
+
+建立新图，新边容量为 $up - low$ , ```A[i]``` 表示点 $i$ 流出的流量。
+
+建立虚拟源点 $s$ 汇点 $t$ 。流入大于流出点，连 $s$ 到 $i$ ，容量为 $A[i]$ ；流出小于流入点，连 $i$ 到 $t$ ，容量为 $-A[i]$
+
+判断流量守恒条件```dinic() == tot```。所有附加边的最大流满流，说明原图存在可行流
+
+
+### 有源汇上下界最大流
+
+从真正的汇点 $T$ 向源点 $S$ 连接容量为正无穷的边。
+
+建立新图，新边容量为 $up - low$ , ```A[i]``` 表示点 $i$ 流出的流量。
+
+建立虚拟源点 $s$ 汇点 $t$ 。流入大于流出点，连 $s$ 到 $i$ ，容量为 $A[i]$ ；流出小于流入点，连 $i$ 到 $t$ ，容量为 $-A[i]$
+
+在新图上找可行流，找不到 $(dinic() \lt tot)$ 就结束 
+
+删掉虚拟源点和汇点，删掉T到S的无穷边。
+
+在原图中的残余网络中找最大流，答案为新图满流可行流 加 原图残余网络最大流
+
+```cpp
+int n, m, s, t, S, T; 
+
+int h[maxn], e[maxm], f[maxm], ne[maxm], top;
+int d[maxn], cur[maxn], A[maxn];
+
+void add(int a, int b, int c) {
+    e[top] = b, f[top] = c, ne[top] = h[a], h[a] = top++;
+}
+
+void solve() {
+
+    memset(h, -1, sizeof h);
+
+    cin >> n >> m >> S >> T; s = 0, t = n+1;
+    for(int i = 0; i<m; i++) {
+        int a, b, c, d; cin >> a >> b >> c >> d;
+        add(a, b, d - c); add(b, a, 0);
+        A[a] -= c; A[b] += c;
+    }
+
+    int tot = 0;
+    for(int i = 1; i<=n; i++) 
+        if(A[i] > 0) add(s, i, A[i]), add(i, s, 0), tot += A[i];
+        else if(A[i] < 0) add(i, t, -A[i]), add(t, i, 0);
+
+    add(T, S, INF), add(S, T, 0);
+    if(dinic() < tot) cout << "No Solution";
+    else {
+        int res = f[top-1];
+        s = S, t = T;
+        f[top - 1] = f[top - 2] = 0;
+        cout << res + dinic() << "\n";
+    }
+
+}
+```
+
+### 有源汇上下界最小流
+
+和上一个为问题不同之处仅为最后一步
+
+从真正的汇点 $T$ 向源点 $S$ 连接容量为正无穷的边。
+
+建立新图，新边容量为 $up - low$ , ```A[i]``` 表示点 $i$ 流出的流量。
+
+建立虚拟源点 $s$ 汇点 $t$ 。流入大于流出点，连 $s$ 到 $i$ ，容量为 $A[i]$ ；流出小于流入点，连 $i$ 到 $t$ ，容量为 $-A[i]$
+
+在新图上找可行流，找不到 $(dinic() \lt tot)$ 就结束 
+
+删掉虚拟源点和汇点，删掉T到S的无穷边。
+
+在原图中的残余网络中 **反向** 找最大流，答案为新图满流可行流 **减** 原图残余网络最大流
+
+```cpp
+int n, m, s, t, S, T; 
+
+int h[maxn], e[maxm], f[maxm], ne[maxm], top;
+int d[maxn], cur[maxn], A[maxn];
+
+void add(int a, int b, int c) {
+    e[top] = b, f[top] = c, ne[top] = h[a], h[a] = top++;
+}
+
+void solve() {
+
+    memset(h, -1, sizeof h);
+
+    cin >> n >> m >> S >> T; s = 0, t = n+1;
+    for(int i = 0; i<m; i++) {
+        int a, b, c, d; cin >> a >> b >> c >> d;
+        add(a, b, d - c); add(b, a, 0);
+        A[a] -= c; A[b] += c;
+    }
+
+    int tot = 0;
+    for(int i = 1; i<=n; i++) 
+        if(A[i] > 0) add(s, i, A[i]), add(i, s, 0), tot += A[i];
+        else if(A[i] < 0) add(i, t, -A[i]), add(t, i, 0);
+
+    add(T, S, INF), add(S, T, 0);
+    if(dinic() < tot) cout << "No Solution";
+    else {
+        int res = f[top-1];
+        s = T, t = S; // 反向
+        f[top - 1] = f[top - 2] = 0;
+        cout << res - dinic() << "\n"; // 相减
+    }
+
+}
+```
+
+## 多源汇最大流
+
+边数为点数与边数和的二倍。
+
+建立虚拟源点汇点，从虚拟源点向所有真实源点连接容量为INF的边，从所有真实汇点向虚拟汇点连接长度为INF的边。
+
+## 关键边
+
+求当前网络上任意最大流
+
+在当前最大流的残留网络上进行搜索，记录所有从源点能够到达的点和所有汇点能够到达的点
+
+对于所有关键边v都满足这样的性质：
+1. $f(u,v) \lt c(u,v)$
+2. $s$ 可达$u$ ， $v$ 可达 $t$
+
+枚举每一条正向边，当此边的端点满足上述性质时，说明此边为关键边。
+
+```cpp
+int n, m, s, t;
+int h[maxn], e[maxm], f[maxm], ne[maxm], top;
+int d[maxn], cur[maxn];
+bool vis_s[maxn], vis_t[maxn];
+
+void add(int a, int b, int c) {
+    e[top] = b, f[top] = c, ne[top] = h[a], h[a] = top++;
+}
+
+void dfs(int u, bool vis[], int t) {
+    vis[u] = true;
+    for(int i = h[u]; ~i; i = ne[i]) {
+        int j = i^t, v = e[i];
+        if(f[j] && !vis[v])
+            dfs(v, vis, t);
+    }
+}
+
+void solve() {
+
+    memset(h, -1, sizeof h);
+
+    cin >> n >> m >> s >> t;
+
+    for(int i = 0; i<m; i++) {
+        int a, b, c; cin >> a >> b >> c;
+        add(a, b, c); add(b, a, 0);
+    }
+
+    dinic();
+    dfs(s, vis_s, 0);
+    dfs(t, vis_t, 1);
+
+    int ret = 0;
+    for(int i = 0; i<m*2; i+=2) {
+        if(!f[i] && vis_s[e[i^1]] && vis_t[e[i]])
+            ret++; // 找到关键边
+    }
+
+    cout << ret << "\n";
+}
+```
+
+## 最大流判定
+
+## 拆点
