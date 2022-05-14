@@ -700,7 +700,36 @@ int kruskal(){
 
 # 二分图
 
+## 前置知识
+
+### 性质
+
 一个图是二分图，等价于图中不含有奇数环，等价于染色法不存在矛盾。
+
+对于二分图：最大匹配数 = 最小点覆盖 = 总点数-最大独立集 = 总点数-最小路径覆盖
+
+### 增广路径
+定义：左部非匹配点 $\rightarrow$ 非匹配边 $\rightarrow$ 匹配边 $\rightarrow$ $\dots$ $\rightarrow$ 匹配边 $\rightarrow$ 非匹配边 $\rightarrow$ 右部非匹配点
+二分图最大匹配等价于该匹配无增广路径。
+
+### 最小点覆盖
+定义：给定任意无向图，选出最少的点，使得任意一条边的两个端点中至少有一个被选出。
+在二分图中，最小点覆盖 = 最大匹配数
+
+### 最大独立集
+定义：给定任意无向图，选出最多的点，使得任意两点之间没有边。
+
+### 最大团
+定义：给定任意无向图，选出最多的点，使得任意两点之间均有边。
+
+### 最小路径点覆盖
+定义：给定DAG，用最少的互不相交的路径将所有点覆盖。互不相交指点和边都不重复。
+将原图中的点 $i$ 拆分为 $i$ 与 $i'$ 对于边 $i\rightarrow j$ 建立新边 $i\rightarrow j'$ ，则新图为G'。最小路径点覆盖为 G点数 - G'最大匹配
+编码时不需要建新边，只需要将边 $i\rightarrow j$ 看作 $i\rightarrow j'$ 即可。
+
+### 最小路径可重复覆盖
+定义：给定DAG，用最少的路径将所有点覆盖。
+对原图求传递闭包，原图的最小路径可重复覆盖等于新图的最小路径点覆盖。
 
 ## 染色法判定二分图
 
@@ -738,30 +767,8 @@ bool solve(){
 复杂度 $O(nm)$ ，但实际运行时间一般远小于 $O(nm)$ 。
 建图时只需要建立从左部指向右部的边。
 
-对于二分图：最大匹配数 = 最小点覆盖 = 总点数-最大独立集 = 总点数-最小路径覆盖
+HK算法是匈牙利的优化算法，使用bfs找增广路，但被网络流完爆。
 
-### 增广路径
-定义：左部非匹配点 $\rightarrow$ 非匹配边 $\rightarrow$ 匹配边 $\rightarrow$ $\dots$ $\rightarrow$ 匹配边 $\rightarrow$ 非匹配边 $\rightarrow$ 右部非匹配点
-二分图最大匹配等价于该匹配无增广路径。
-
-### 最小点覆盖
-定义：给定任意无向图，选出最少的点，使得任意一条边的两个端点中至少有一个被选出。
-在二分图中，最小点覆盖 = 最大匹配数
-
-### 最大独立集
-定义：给定任意无向图，选出最多的点，使得任意两点之间没有边。
-
-### 最大团
-定义：给定任意无向图，选出最多的点，使得任意两点之间均有边。
-
-### 最小路径点覆盖
-定义：给定DAG，用最少的互不相交的路径将所有点覆盖。互不相交指点和边都不重复。
-将原图中的点 $i$ 拆分为 $i$ 与 $i'$ 对于边 $i\rightarrow j$ 建立新边 $i\rightarrow j'$ ，则新图为G'。最小路径点覆盖为 G点数 - G'最大匹配
-编码时不需要建新边，只需要将边 $i\rightarrow j$ 看作 $i\rightarrow j'$ 即可。
-
-### 最小路径可重复覆盖
-定义：给定DAG，用最少的路径将所有点覆盖。
-对原图求传递闭包，原图的最小路径可重复覆盖等于新图的最小路径点覆盖。
 
 ```cpp
 int n1, n2, m;
@@ -773,7 +780,7 @@ bool find(int u) {
         int v = e[i];
         if(vis[v]) continue;
         vis[v] = true;
-        if(match[v] == 0 || find(match[v])) {
+        if(match[v] == -1 || find(match[v])) {
             match[v] = u;
             return true;
         }
@@ -782,12 +789,130 @@ bool find(int u) {
 }
 
 int solve() {
+    memset(match, -1, sizeof match);
     int ret = 0;
     for(int u = 1; u<=n1; u++) {
         memset(vis, 0, sizeof(vis));
         if(find(u)) ret++;
     }
     return ret;
+}
+```
+
+## KM求最优匹配
+
+要确保二分图有完全匹配。
+
+复杂度 $O(n^4)$
+
+```cpp
+int n;
+
+int w[maxn][maxn];
+int lx[maxn], ly[maxn], match[maxn];
+bool visx[maxn], visy[maxn];
+
+bool dfs(int x) {
+    visx[x] = 1;
+    for(int i = 1; i<=n; i++) {
+        if(!visy[i] && lx[x] + ly[i] == w[x][i]) {
+            visy[i] = 1;
+            if(match[i] == -1 || dfs(match[i])){
+                match[i] = x;
+                return true;
+            }
+        }
+    }
+    return false;
+}
+
+int KM() {
+    memset(lx, 0xf7, sizeof lx);
+    memset(ly, 0, sizeof ly);
+    memset(match, -1, sizeof match);
+    for(int i = 1; i<=n; i++) 
+        for(int j = 1; j<=n; j++)
+            lx[i] = max(w[i][j], lx[i]);
+
+    for(int i = 1; i<=n; i++) {
+        while(true) {
+            memset(visx, 0, sizeof visx);
+            memset(visy, 0, sizeof visy);
+            if(dfs(i)) break;
+            int d = 0x7f7f7f7f;
+            for(int j = 1; j<=n; j++)
+                if(visx[j])
+                    for(int k = 1; k<=n; k++) 
+                        if(!visy[k]) d = min(d, lx[j] + ly[k] - w[j][k]);
+            if(d == 0x7f7f7f7f) return -1;
+            for(int j = 1; j<=n; j++) if(visx[j]) lx[j] -= d;
+            for(int j = 1; j<=n; j++) if(visy[j]) ly[j] += d;
+        }
+    }
+
+    int ret = 0;
+    for(int i = 1; i<=n; i++) ret += w[match[i]][i];
+    return ret;
+}
+```
+
+bfs求增广路，复杂度 $O(n^3)$
+
+```cpp
+int w[maxn][maxn];
+int la[maxn], lb[maxn], pre[maxn], match[maxn], upd[maxn];
+bool vis[maxn];
+int n, m;
+
+void bfs(int s) {
+    int x, y = 0, yy;
+    memset(pre, 0, sizeof(pre));
+    for(int i = 1; i <= n; i++) upd[i] = 1e18;
+    match[y] = s;
+    while(true) {
+        x = match[y], vis[y] = 1;
+        int delta = 1e18;
+        for(int i = 1; i <= n; i ++) {
+            if(vis[i]) continue;
+            if(upd[i] > la[x] + lb[i] - w[x][i]) {upd[i] = la[x] + lb[i] - w[x][i], pre[i] = y;} 
+            if(upd[i] < delta) delta = upd[i], yy = i;
+        }
+        for(int i = 0; i <= n; i ++) {
+            if(vis[i]) {la[match[i]] -= delta;lb[i] += delta;} 
+            else upd[i] -= delta;
+        }
+        y = yy;
+        if(!match[y]) break;
+    }
+    while(y) {match[y] = match[pre[y]]; y = pre[y]; }
+} 
+
+int KM() {
+    for(int i = 1; i <= n; i ++) la[i] = 0;
+    for(int i = 1; i <= n; i ++)
+        for(int j = 1; j <= n; j ++)
+            la[i] = max(la[i], w[i][j]);
+    for(int i = 1; i <= n; i ++) {
+        memset(vis, 0, sizeof(vis));
+        bfs(i);	
+    }
+    int ans = 0;
+    for(int i = 1; i <= n; i ++) ans += w[match[i]][i];
+    return ans;
+}
+
+void solve() {
+    for(int i = 1; i <= n; i ++)
+        for(int j = 1; j <= n; j ++)
+            w[i][j] = -1e18;
+    for(int i = 1; i <= m; i ++) {
+        int x, y, z;
+        cin >> x >> y >> z;
+        w[x][y] = z;
+    }
+    cout << KM() << endl;
+    for(int i = 1; i <= n; i ++)
+        cout << match[i] << " ";
 }
 ```
 
