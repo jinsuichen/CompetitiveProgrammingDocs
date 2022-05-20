@@ -698,7 +698,7 @@ int kruskal(){
 }
 ```
 
-# 二分图
+# 二分图匹配
 
 ## 前置知识
 
@@ -913,6 +913,166 @@ void solve() {
     cout << KM() << endl;
     for(int i = 1; i <= n; i ++)
         cout << match[i] << " ";
+}
+```
+
+## 稳定婚姻问题
+
+给定二分图，其中一个点可以连接另一分部中的所有点，求一个匹配满足：对每一个人，他心目中更好的异性都不觉得他是比目前更好的选择。
+
+```cpp
+int n;
+int future_wife[maxn], future_husband[maxn];
+int pre[maxn][maxn], order[maxn][maxn], nxt[maxn];
+queue<int>q;
+// 男士是根据喜欢的程度从高到低去求婚请示，男士主动
+// 女士被动，只能从所有向她求婚的人中选择最喜欢的哪一位，比较惨，有可能选的是她最不喜欢的那一位。
+
+void engage(int man, int woman) {
+    int loser = future_husband[woman];
+    if(loser){
+        future_wife[loser] = 0;
+        q.push(loser);
+    }
+    future_husband[woman] = man;
+    future_wife[man] = woman;
+}
+
+void solve() {
+
+    cin >> n;
+    // 按照喜欢的顺序输入编号
+    for(int i = 1; i <= n; ++ i){
+        for(int j = 1;j <= n; ++ j)
+            cin >> pre[i][j]; // 编号为i的男士第j喜欢的女士的编号
+        nxt[i] = 1; // 表示接下来编号为i的男士将向喜欢程度第nex[i]的女士求婚
+        future_wife[i] = 0; // 没有未婚妻
+        q.push(i); //单身狗队列
+    }
+
+    // 处理女士
+    for(int i = 1; i <= n; ++ i){
+        for(int j = 1; j <= n; ++ j){
+            int x; cin >> x;
+            order[i][x] = j; // 表示编号为i的女士对于编号为x的男士的喜欢程度，用于判断是否和这位男士订婚
+        }
+        future_husband[i] = 0; // 没有未婚夫
+    }
+
+    while(q.size()){
+        int man = q.front();
+        q.pop();
+        int woman = pre[man][nxt[man]];
+        if(!future_husband[woman])
+            engage(man, woman);
+        else if(order[woman][man] < order[woman][future_husband[woman]])
+            engage(man, woman);
+        else q.push(man), nxt[man] ++ ; // 此轮求婚失败，进入单身狗队列，找下一个
+    }
+    while(q.size()) q.pop();
+
+    for(int i = 1; i <= n; ++i)
+        cout << future_wife[i] << "\n";
+
+}
+```
+
+# 一般图匹配（带花树）
+
+如果多组，仅需要将邻接表和match数组初始化。
+
+```cpp
+int fa[maxn];
+int vis[maxn], tmp;
+int match[maxn], last[maxn], col[maxn];
+queue<int> q;
+int n;
+
+int h[maxn], e[maxm], ne[maxm], top;
+void add(int a, int b) {
+    e[top] = b, ne[top] = h[a], h[a] = top++;
+}
+
+int findfa(int x) {
+    if(x != fa[x]) fa[x] = findfa(fa[x]);
+    return fa[x];
+}
+
+int lca(int x, int y) { // 求环顶
+    tmp++; // 为了不清vis数组，每次进入函数时给vis赋的值都不一样就可以了
+    while(true) {
+        if(x != 0){
+            x = findfa(x); // 先去x的环顶（处理非简单环的情况）
+            if(vis[x] == tmp) return x; // x走过，已经是环顶了，返回
+            vis[x] = tmp; // 标记走过
+            if (match[x]) x = last[match[x]];
+            // 往上跳一条匹配边和非匹配边（BFS一层就是走了一条匹配边和一条非匹配边)
+            else x =0 ;
+        }
+        swap(x, y); // 交换xy
+    }
+}
+
+void flower (int a ,int r) { // 缩环（的一半)
+
+    while(a != r) {
+        int b = match[a], c = last[b]; // a是黑点所以先跳匹配边再跳非匹配边
+        if(findfa(c) != r) last[c]= b;
+        // 因为奇环里到底怎么匹配还不知道，干脆把原来的匹配边也记录一组非匹配边（任意相邻两个点都有可能是最终的匹配）
+        if(col[b] == 2) q.push(b), col[b] = 1;
+        if(col[c] == 2) q.push(c), col[c] = 1; // 环上的白点要变成黑点
+        fa[findfa(a)] = findfa(b);
+        fa[findfa(b)] = findfa(c); // 并查集维护父亲
+        a = c; // 往上跳
+    }
+}
+
+int work(int s) {
+    for(int i = 1; i<=n; i++)
+        last[i] = col[i] = vis[i] = 0, fa[i] = i; // 清数组
+    while(!q.empty()) q.pop();
+    col[s] = 1; // 给起点标成黑色
+    q.push(s);
+    while (!q.empty()) { // 广搜
+        int x = q.front(); q.pop();
+        for(int i = h[x]; ~i; i = ne[i]) {
+            int y = e[i];
+            if(match[x] == y) continue; // 走的匹配边（走回去了）
+            if(findfa(x) == findfa(y)) continue; // 两个点在同一个已缩过的奇环里
+            if(col[y] == 2) continue; // 偶环
+            if(col[y] == 1) {  // 黑点——奇环
+                int r = lca(x, y);// r是环项
+                if(findfa(x) != r) last[x]=y;
+                if(findfa(y) != r) last[y]=x; // xy靠非匹配边接在一起
+                flower(x, r);
+                flower(y, r); // 缩花，每次缩掉花的一半              
+            } else if (!match[y]) { // else: y等于0——在这次增广中y没访问过; match为0，这个点是个未匹配的点——增广路已经求到了
+                last[y] = x; // y通过非匹配边和x连到一起
+                for (int u = y; u != 0; ) { // 顺着交错路走回去
+                    int v = last[u]; // last是他通过非匹配边连的上一个点
+                    int w = match[v] ; // 去v原来匹配的点
+                    match[v] = u;
+                    match[u] = v; // 匹配边和非匹配边交换——uv)成为新一对
+                    u = w; // 再从w开始往前走直到把这个增广路修改完
+                    // 这里之所以没有改last的值是因为用过了就没用了，后面会退出work函数，再次进入就清空了
+                }
+                return 1; // 本次增广己经找到增广路了
+            } else{ // col等于0——在这次增广中y没访问过，且y原来有匹配{
+                last[y] = x; // 通过未匹配边的y的前一个点为
+                col[y] = 2; // y自己是白点
+                col[match[y]] = 1; // y通过匹配边连的前一个点是黑点
+                q.push(match[y]); // 这个黑点入队
+            }
+        }
+    }
+    return 0;
+}
+
+int solve() {
+    int ret = 0;
+    for(int i = 1; i<=n; i++) if(!match[i]) work(i);
+    for(int i = 1; i<=n; i++) if(match[i]) ret++;
+    return ret;
 }
 ```
 
