@@ -1461,12 +1461,15 @@ int EK() {
 ```d[]``` 为分层图层数，```cur[]```为当前弧优化。
 
 ```cpp
-int n, m, s, t;
+int s, t;
 int h[maxn], e[maxm], f[maxm], ne[maxm], top;
 int d[maxn], cur[maxn];
 
-void add(int a, int b, int c) {
+void add1(int a, int b, int c) {
     e[top] = b, f[top] = c, ne[top] = h[a], h[a] = top++;
+}
+void add2(int a, int b, int c, int d) {
+    add1(a, b, c); add1(b, a, d);
 }
 
 bool bfs() {
