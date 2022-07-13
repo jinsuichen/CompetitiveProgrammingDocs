@@ -1393,13 +1393,13 @@ $ \forall [S, T], f(S,T) \leq c(S,T), f(S, T) = \vert f \vert $
 2. 可行流 $f$ 的残留网络 $G_f$ 中不存在增广路
 3. 存在某个割 $ [S, T], \vert f \vert = c(S, T) $
 
-# 求最大流模板
+# 网络流模板
 
-建边时，$ a \rightarrow b $ 建立长度为 $ c(a, b) $ 的边，$ b \rightarrow a $ 建立长度为 $ 0 $ 的反向边。
+求最大流建边时，$ a \rightarrow b $ 建立长度为 $ c(a, b) $ 的边，$ b \rightarrow a $ 建立长度为 $ 0 $ 的反向边。
 
 注意边数开双倍空间。
 
-## EK
+## EK求最大流
 
 复杂度 $O(n \cdot m^2)$
 
@@ -1452,7 +1452,7 @@ int EK() {
 }
 ```
 
-## Dinic
+## Dinic求最大流
 
 复杂度 $O(n^2 \cdot m)$
 
@@ -1511,6 +1511,59 @@ int dinic() {
     int r = 0, flow;
     while(bfs()) while(flow = find(s, INF)) r += flow;
     return r;
+}
+```
+
+## EK求费用流
+
+```cpp
+int s, t;
+int h[maxn], e[maxm], f[maxm], w[maxm], ne[maxm], top;
+int d[maxn], pre[maxn], incf[maxn];
+bool st[maxn];
+
+void add1(int a, int b, int c, int d) {
+    e[top] = b, f[top] = c, w[top] = d, ne[top] = h[a], h[a] = top++;
+}
+void add2(int a, int b, int c, int d, int e, int f) {
+    add1(a, b, c, e);
+    add1(b, a, d, f);
+}
+
+bool spfa() {
+    queue<int> q;
+    memset(d, 0x3f, sizeof d);
+    memset(incf, 0, sizeof incf);
+    q.push(s), d[s] = 0, incf[s] = INF;
+    while(q.size()) {
+        int u = q.front(); q.pop();
+        st[u] = false;
+        for(int i = h[u]; ~i; i = ne[i]) {
+            int v = e[i];
+            if(f[i] && d[v] > d[u] + w[i]) {
+                d[v] = d[u] + w[i];
+                pre[v] = i;
+                incf[v] = min(f[i], incf[u]);
+                if(!st[v]) {
+                    q.push(v);
+                    st[v] = true;
+                }
+            }
+        }
+    }
+    return incf[t] > 0;
+}
+
+void EK(int& flow, int& cost) {
+    flow = cost = 0;
+    while(spfa()) {
+        int ff = incf[t];
+        flow += ff, cost += ff * d[t];
+        for(int i = t; i != s; i = e[pre[i]^1]) {
+            f[pre[i]] -= ff;
+            f[pre[i]^1] += ff;
+        }
+    }
 }
 ```
 
