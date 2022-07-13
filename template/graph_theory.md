@@ -1395,7 +1395,9 @@ $ \forall [S, T], f(S,T) \leq c(S,T), f(S, T) = \vert f \vert $
 
 # 网络流模板
 
-求最大流建边时，$ a \rightarrow b $ 建立长度为 $ c(a, b) $ 的边，$ b \rightarrow a $ 建立长度为 $ 0 $ 的反向边。
+求最大流建边时，$ a \rightarrow b $ 建立容量为 $ c(a, b) $ 的边，$ b \rightarrow a $ 建立容量为 $ 0 $ 的反向边。
+
+求费用流建边时，$ a \rightarrow b $ 建立容量为 $ c(a, b) $ 的边，$ b \rightarrow a $ 建立容量为 $ 0 $ 的反向边。$ a \rightarrow b $ 建立费用为 $ w $ 的边，$ b \rightarrow a $ 建立费用为 $ -w $ 的反向边。
 
 注意边数开双倍空间。
 
