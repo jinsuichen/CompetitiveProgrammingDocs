@@ -34,7 +34,7 @@ struct Point {
 };
 using Vector = Point;
 Vector operator + (Vector A, Vector B) { return Vector{A.x+B.x, A.y+B.y};}
-Vector operator - (Point A, Point B) { return Vector{A.x-B.x, A.y-B.y};}
+Vector operator - (Vector A, Vector B) { return Vector{A.x-B.x, A.y-B.y};}
 Vector operator * (Vector A, double p) { return Vector{A.x*p, A.y*p};}
 Vector operator / (Vector A, double p) { return Vector{A.x/p, A.y/p};}
 
