@@ -1,33 +1,7 @@
 # 关于
 
-包含邻接表、树的重心、拓扑排序、欧拉路径、最短路、生成树、二分图、Tarjan、线段树建图、网络流。
+包含树的重心、拓扑排序、欧拉路径、最短路、生成树、二分图、Tarjan、线段树建图、网络流。
 
-# 邻接表
-
-```cpp
-const int maxn = 1e5+50; //点的数量
-const int maxm = 2e5+50; //边的数量
-
-int h[maxn], e[maxm], ne[maxm];
-int top;
-
-void init(){
-    memset(h, -1, sizeof(h));
-}
-
-void add_edge(int a, int b){
-    e[top] = b;
-    ne[top] = h[a];
-    h[a] = top++;
-}
-
-void travel(int u){
-    for(int i = h[u]; i!=-1; i = ne[i]){
-        int v = e[i];
-        //do something
-    }
-}
-```
 
 # 树的重心
 
@@ -42,7 +16,7 @@ int dfs(int u){
     
     vis[u] = true;
     int res = 0, tot = 1;
-    for(int i = h[u]; i!=-1; i = ne[i]){
+    for(int i = h[u]; ~i; i = ne[i]){
         int v = e[i];
         if(!vis[v]){
             int p = dfs(v);
@@ -81,7 +55,7 @@ bool topsort(vector<int>& ans){
             
     while(!q.empty()){
         int u = q.front(); q.pop();
-        for(int i = h[u]; i!=-1; i = ne[i]){
+        for(int i = h[u]; ~i; i = ne[i]){
             int v = e[i];
             if(--in[v] == 0) {
                 q.push(v);
@@ -240,8 +214,6 @@ E-->I
 ## 朴素做法
 
 ```cpp
-int n, m; 
-const int maxn = 500+20;
 int g[maxn][maxn];
 void add(int a, int b, int c){
 	g[a][b] = min(g[a][b], c);
@@ -266,13 +238,6 @@ void dijkstra(){
 ## 堆优化
 
 ```cpp
-const int maxn = 2e5+20;
-const int maxm = 2e5+20;
-int h[maxn], e[maxm], ne[maxm], w[maxm], top;
-void add(int a, int b, int c){
-	e[top] = b, w[top] = c, ne[top] = h[a], h[a] = top++;
-}
-
 struct Node{
 	int u, d;
 	bool operator < (const Node& b) const {
@@ -334,46 +299,29 @@ int bellman_ford(){
 ## 求最短路
 
 ```cpp
-const int maxn = 1e5+50;
-const int maxm = 1e5+50;
-const int INF = 0x3f3f3f3f;
 int n, m;
 
 int dist[maxn];
-bool vis[maxn];
-
-int h[maxn], e[maxm], weight[maxm], ne[maxm], idx;
-
-void init(){
-    memset(h, -1, sizeof(h));
-}
-
-void add_edge(int a, int b, int w){
-    e[idx] = b; weight[idx] = w; 
-    ne[idx] = h[a];
-    h[a] = idx++;
-}
+bool inq[maxn];
 
 //不连通返回INF
-int spfa(){
+void spfa(){
 
-    memset(dist, 0x3f, sizeof(dist));
-    dist[1] = 0;
-    
-    queue<int> q; q.push(1); vis[1] = true;
+    memset(dist, 0x3f, sizeof(dist)); dist[1] = 0;
+    queue<int> q; q.push(1); inq[1] = true;
+
     while(!q.empty()){
-        int u = q.front(); q.pop(); vis[u] = false;
+        int u = q.front(); q.pop(); inq[u] = false;
         
-        for(int i = h[u]; i!=-1; i = ne[i]){
-            int v = e[i], w = weight[i];
-            if(dist[v] > dist[u] + w){
-                dist[v] = dist[u] + w;
-                if(!vis[v]) q.push(v), vis[v] = true;
+        for(int i = h[u]; ~i; i = ne[i]){
+            int v = e[i];
+            if(dist[v] > dist[u] + w[i]){
+                dist[v] = dist[u] + w[i];
+                if(!inq[v]) q.push(v), inq[v] = true;
             }
         }
     }
-    
-    return dist[n];
+
 }
 ```
 
@@ -387,10 +335,6 @@ int spfa(){
 - 将队列改为栈
 
 ```cpp
-const int maxn = 1e5+50;
-const int maxm = 1e5+50;
-int n, m;
-
 int dist[maxn], cnt[maxn];
 bool vis[maxn];
 
@@ -462,18 +406,18 @@ const int INF = 0x3f3f3f3f;
 const int maxn = 210;
 int g[maxn][maxn];
 
-void init(){
+void init() {
     memset(g, 0x3f, sizeof(g));
     for(int i = 0; i<maxn; i++) g[i][i] = 0;
 }
 
 //需要处理重边
-
+void add_edge(int a, int b, int w) {
     g[a][b] = min(g[a][b], w);
 }
 
 //g[i][j] > INF / 2 表示不连通
-void floyd(){   
+void floyd() {   
     for(int k = 1; k<=n; k++)
         for(int i = 1; i<=n; i++)
             for(int j = 1; j<=n; j++)
@@ -484,11 +428,11 @@ void floyd(){
 ## 传递闭包
 
 ```cpp
-void init(){
+void init() {
     memset(g, 0, sizeof(g));
 }
 
-void floyd(){
+void floyd() {
     for(int k = 0; k<n; k++)
         for(int i = 0; i<n; i++)
             for(int j = 0; j<n; j++)
