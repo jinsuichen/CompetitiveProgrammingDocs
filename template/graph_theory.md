@@ -1228,6 +1228,38 @@ void tarjan(int u) {
 }
 ```
 
+# 简单无向图判断奇偶环
+
+要求无向图不能有重边和自环。
+
+判断无向图是否存在奇偶环，并求最大奇环长。
+
+```cpp
+int dfn[maxn], dep[maxn], tag[maxn], timestamp;
+bool has_odd, has_even;
+int max_odd;
+
+void dfs(int u, int fa) {
+    dfn[u] = ++timestamp;
+    for(int i = h[u]; ~i; i = ne[i]) {
+        int v = e[i]; if(v == fa) continue;
+        if(!dfn[v]) {
+            dep[v] = dep[u] + 1;
+            dfs(v, u);
+            tag[u] += tag[v];
+        } else if(dfn[v] < dfn[u]) {
+            if((dep[u] - dep[v]) & 1) has_even = 1;
+            else{
+                has_odd = 1;
+                max_odd = max(max_odd, dep[u] - dep[v] + 1);
+            }
+            tag[u]++; tag[v]--;
+        }
+    }
+    if(tag[u] > 1) has_even = 1;
+}
+```
+
 # 线段树建图
 
 可以建立$O(nlogn)$条边实现点与区间、区间与区间相互连边
