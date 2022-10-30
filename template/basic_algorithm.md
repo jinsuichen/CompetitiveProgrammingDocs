@@ -1,6 +1,6 @@
 # 关于
 
-包含快速排序、归并排序、二分查找、高精度、前缀和与差分、位运算、区间合并。
+包含快速排序、归并排序、二分、三分、模拟退火、高精度、前缀和与差分、位运算、区间合并。
 
 待完善的算法有双指针、离散化。
 
@@ -133,6 +133,34 @@ while(r - l > 3) {
     int lmid = l + len , rmid = r - len ;
     if(func(lmid) > func(rmid)) l = lmid;
     else  r = rmid;
+}
+```
+
+# 模拟退火
+
+```cpp
+mt19937_64 rng(std::chrono::steady_clock::now().time_since_epoch().count());
+double rd(double l, double r) {
+    uniform_real_distribution<double> u(l, r);
+    return u(rng);
+}
+
+double ans = 1e300;
+double calc(double x) {
+    double ret = 0;
+    // calculate...
+    ans = min(ans, ret);
+    return ret;
+}
+
+void sumulate_anneal() {
+    double cur = rd(0, 10000); //在可行域中随机选一个值
+    //t初始化为可跳转范围，要覆盖可行域
+    for(double t = 1e4; t > 1e-4; t*=0.99) { 
+        double nxt = rd(cur - t, cur + t);
+        double dt = calc(nxt) - calc(cur);
+        if(exp(-dt / t) > rd(0, 1)) cur = nxt;
+    }
 }
 ```
 
