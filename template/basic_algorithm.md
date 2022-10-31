@@ -154,12 +154,12 @@ double calc(double x) {
 }
 
 void sumulate_anneal() {
-    double cur = rd(0, 10000); //在可行域中随机选一个值
-    //t初始化为可跳转范围，要覆盖可行域
+    double cur = rd(0, 10000); // 在可行域中随机选一个值
+    // t初始化为可跳转范围，要覆盖可行域
     for(double t = 1e4; t > 1e-4; t*=0.99) { 
         double nxt = rd(cur - t, cur + t);
         double dt = calc(nxt) - calc(cur);
-        if(exp(-dt / t) > rd(0, 1)) cur = nxt;
+        if(exp(-dt / t) > rd(0, 1)) cur = nxt; // 求最大值将dt的负号去掉
     }
 }
 ```
