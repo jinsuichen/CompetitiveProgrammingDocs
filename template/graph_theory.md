@@ -1827,3 +1827,71 @@ void solve() {
 ## 平面图三元环
 
 每次选择度数最小的点（度数一定小于等于$5$）进行拓扑排序， $5 \times 5$ 枚举邻接点计算三角形数量。
+
+
+# 最小斯坦纳树
+
+时间复杂度 $O(n \times 3^k + m \log m\times 2^k)$
+
+给定无向图和图上的一些点组成的点集，那么能使这些点集连通的原图子树就是该图对于该点集的一颗斯坦纳树。
+
+那么最小斯坦纳树就是所有斯坦纳树中边权值和最小的一颗。
+
+```cpp
+using PII = pair<int, int>;
+const int INF = 0x3f3f3f3f;
+const int maxn = 110;
+const int maxm = 1020;
+const int maxk = 12;
+
+int h[maxn], e[maxm], w[maxm], ne[maxm], top;
+int key[maxk], tree[maxm];
+void add(int a, int b, int c) {
+    e[top] = b, tree[top] = b, w[top] = c, ne[top] = h[a], h[a] = top++;
+}
+
+struct Node{ int u, d; bool operator < (const Node& o) const{return d > o.d;} };
+//dp[i][j]表示以i为根的一棵树，包含集合j中所有点的最小边权值和 
+int dp[maxn][1 << maxk],vis[maxn];
+
+int steiner() {
+    memset(h, -1, sizeof h);
+	memset(dp, 0x3f, sizeof dp);
+
+	int n, m, k; cin >> n >> m >> k;
+	for(int i = 1; i <= m; i++){ //建无向图 
+		int a, b, c; cin >> a >> b  >> c;
+		add(a, b, c); add(b, a, c);
+	}
+    
+	for(int i = 1; i <= k; i++){
+		cin >> key[i]; 
+		dp[key[i]][1<<(i-1)] = 0;
+	}
+
+    priority_queue<Node> q;
+	for(int s = 1; s < (1 << k); s++){ // 表示点集
+		for(int i = 1; i <= n; i++){  // 中间部分
+			for(int subs = s&(s-1); subs; subs = s&(subs-1)) // 子图 
+				dp[i][s] = min(dp[i][s], dp[i][subs] + dp[i][s^subs]);
+			if(dp[i][s]!=INF) q.push({i, dp[i][s]});	
+		}
+        // dijkstra(s)
+		memset(vis, 0, sizeof vis);
+        while(q.size()){
+            int u = q.top().u; q.pop();
+            if(vis[u]) continue; vis[u] = 1;
+
+            // 再当前子集连通状态下进行边的松弛操作 
+            for(int i = h[u]; ~i; i = ne[i]){
+                if(dp[tree[i]][s] > dp[u][s] + w[i]){
+                    dp[tree[i]][s] = dp[u][s] + w[i];
+                    q.push({tree[i], dp[tree[i]][s]});
+                }
+            }
+        }
+	}
+
+	return dp[key[1]][(1<<k)-1];
+}
+```
