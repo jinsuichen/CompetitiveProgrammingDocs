@@ -1895,3 +1895,93 @@ int steiner() {
 	return dp[key[1]][(1<<k)-1];
 }
 ```
+
+# k短路
+
+```cpp
+using LL = long long;
+using PLI = pair<LL, int>;
+using PII = pair<int, int>;
+#define fi first
+#define se second
+
+// 源点、汇点
+int s, t;
+
+const int maxn = 3e5+20;
+int n, k, pre[maxn], root[maxn];
+LL dis[maxn];
+vector<PII> oriG[maxn], revG[maxn];
+
+struct PersistentLeftistTree {
+    static const int maxd = 3e7 + 5;
+    int node, ch[maxd][2], rds[maxd];
+    PLI val[maxd];
+
+    int newnd( const PLI& v ) {
+        val[++node] = v, ch[node][0] = ch[node][1] = 0, rds[node] = 1;
+        return node;
+    }
+
+    int merge( int x, int y ) {
+        if ( !x || !y ) return x | y;
+        if ( val[x] > val[y] ) swap( x, y );
+        int u = newnd( val[x] );
+        ch[u][0] = ch[x][0], ch[u][1] = merge( ch[x][1], y );
+        if ( rds[ch[u][1]] > rds[ch[u][0]] ) swap( ch[u][0], ch[u][1] );
+        return rds[u] = rds[ch[u][1]] + 1, u;
+    }
+} plt;
+
+void add(int s, int t, int w) {
+    oriG[s].push_back( { t, w } ), revG[t].push_back( { s, w } );
+}
+
+void dijkstra() {
+    priority_queue<PLI, vector<PLI>, greater<PLI> > heap;
+    memset( dis, 0x3f, sizeof dis );
+    heap.push( { dis[t] = 0, t } );
+    while (heap.size()) {
+        PLI p( heap.top() ); heap.pop();
+        if ( dis[p.se] < p.fi ) continue;
+        for ( const PII& e: revG[p.se] ) {
+            if ( dis[e.fi] > p.fi + e.se ) {
+                heap.push( { dis[e.fi] = p.fi + e.se, e.fi } );
+                pre[e.fi] = p.se;
+            }
+        }
+    }
+}
+
+void k_shortest_path() {
+
+    dijkstra();
+
+    for(int u = n; u >=0; u--) {
+        root[u] = root[pre[u]];
+        for ( const PII& v: oriG[u] ) {
+            if ( pre[u] != v.fi ) {
+                root[u] = plt.merge( root[u],
+                    plt.newnd( { dis[v.fi] + v.se - dis[u], v.fi } ) );
+            }
+        }
+    }
+
+    priority_queue<PLI, vector<PLI>, greater<PLI> > heap;
+    cout << dis[s] << '\n'; // 输出最短路
+    if ( root[s] ) heap.push( { plt.val[root[s]].fi, root[s] } );
+    while ( --k ) { // 输出第2-k短路，若不存在则输出-1
+        if ( heap.empty() ) { cout << "-1\n"; continue; }
+        PLI p( heap.top() ); heap.pop();
+        cout << dis[s] + p.fi << '\n';
+
+        int u;
+        if ( ( u = plt.merge( plt.ch[p.se][0], plt.ch[p.se][1] ) ) ) {
+            heap.push( { p.fi - plt.val[p.se].fi + plt.val[u].fi, u } );
+        }
+        if ( ( u = root[plt.val[p.se].se] ) ) {
+            heap.push( { p.fi + plt.val[u].fi, u } );
+        }
+    }
+}
+```
