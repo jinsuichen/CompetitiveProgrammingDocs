@@ -1900,6 +1900,8 @@ int steiner() {
 
 # k短路
 
+复杂度 $O((m + k) \log m)$
+
 ```cpp
 using LL = long long;
 using PLI = pair<LL, int>;
