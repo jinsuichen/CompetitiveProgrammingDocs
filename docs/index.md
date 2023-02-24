@@ -11,5 +11,5 @@ hero:
       link: /basic-algorithm
     - theme: alt
       text: 查看 GitHub 仓库
-      link: https://github.com/vuejs/vitepress
+      link: https://github.com/jinsuichen/CompetitiveProgrammingDocs
 ---
