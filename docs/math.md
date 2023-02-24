@@ -1,10 +1,10 @@
-# 关于
+# 数学
 
 包含质数、约数、欧拉函数、快速幂、龟速乘、扩展欧几里得、中国剩余定理、高斯消元、求组合数、容斥原理、博弈论
 
-# 质数
+## 质数
 
-## 试除法判定
+### 试除法判定
 
 复杂度 $O(\sqrt{n})$
 
@@ -17,7 +17,7 @@ bool is_prime(int n){
 }
 ```
 
-## 分解质因数
+### 分解质因数
 
 复杂度 $O(logn) $ ~ $ O(\sqrt{n})$
 
@@ -32,7 +32,7 @@ void divide(int n){
 }
 ```
 
-## 埃氏筛
+### 埃氏筛
 
 复杂度 $O(nloglogn)$
 
@@ -52,7 +52,7 @@ void get_primes(int n){
 }
 ```
 
-## 线性筛
+### 线性筛
 
 复杂度 $O(n)$
 
@@ -72,13 +72,13 @@ void get_primes(int n){
 }
 ```
 
-# 约数
+## 约数
 
 int范围内的整数，约数最多的数的约数大约有1500个
 
 一个数可以质因数分解为 $p_1^{\alpha_1} \times p_2^{\alpha_2} \times\cdots\times p_k^{\alpha_k}$
 
-## 试除法求所有约数
+### 试除法求所有约数
 
 复杂度 $O(\sqrt{n})$
 
@@ -99,7 +99,7 @@ vector<int> get_divisors(int n){
 }
 ```
 
-## 约数个数
+### 约数个数
 
 n个数的乘积的约数个数。将所有数因式分解，再套用下面公式。
 
@@ -125,7 +125,7 @@ int solve(){
 }
 ```
 
-## 约数之和
+### 约数之和
 
 n个数的乘积的约数之和。将所有数因式分解，再套用下面公式。
 
@@ -154,7 +154,7 @@ int solve(){
 }
 ```
 
-## 欧几里德
+### 欧几里德
 
 复杂度 $O(logn)$
 
@@ -164,9 +164,9 @@ int gcd(int a, int b){
 }
 ```
 
-# 欧拉函数
+## 欧拉函数
 
-## 单个数
+### 单个数
 
 瓶颈是分解质因数，复杂度 $O(\sqrt{n})$
 
@@ -186,7 +186,7 @@ int euler(int n){
 }
 ```
 
-## 筛法
+### 筛法
 
 复杂度 $O(n)$
 
@@ -218,15 +218,15 @@ void get_eulers(int n){
 }
 ```
 
-## 欧拉定理
+### 欧拉定理
 
 若 $a$ 与 $n $ 互质，则 $a^{\varphi(n)}\equiv1\pmod{n}$
 
 当 $n$ 为质数时，得到费马定理 $a^{p-1} \equiv1\pmod{p}$
 
-# 快速幂
-
 ## 快速幂
+
+### 快速幂
 
 ```cpp
 int qmi(int a, int k){
@@ -240,7 +240,7 @@ int qmi(int a, int k){
 }
 ```
 
-## 快速幂求逆元
+### 快速幂求逆元
 
 前提条件：模数为质数
 
@@ -251,7 +251,7 @@ int inv(int a){
 }
 ```
 
-# 龟速乘
+## 龟速乘
 
 ```cpp
 ll qadd(ll a, ll b, ll p){
@@ -265,7 +265,7 @@ ll qadd(ll a, ll b, ll p){
 }
 ```
 
-# 扩展欧几里得
+## 扩展欧几里得
 
 ```cpp
 int exgcd(int a, int b, int &x, int &y)
@@ -280,7 +280,7 @@ int exgcd(int a, int b, int &x, int &y)
 }
 ```
 
-# 中国剩余定理
+## 中国剩余定理
 
 已知 $m_1,m_2,\cdots,m_k$ 两两互质。令 $M={m_1}\times{m_2}\times\cdots\times{m_l}$， $M_i=\frac{M}{m_i}$， $M_i^{-1}$ 表示 $M_i$ 模 $m_i$ 的逆。
 
@@ -299,7 +299,7 @@ x\equiv{a_k}&\pmod{m_k}\\
 $$
 存在解 $x=a_1M_1M_1^{-1}+a_2M_2M_2^{-1}+\cdots+a_{k}M_{k}M_{k}^{-1}$
 
-## 朴素CRT
+### 朴素CRT
 
 ```cpp
 typedef long long LL;
@@ -337,7 +337,7 @@ LL crt(){
 }
 ```
 
-## 扩展CRT
+### 扩展CRT
 
 可以在 $m_i$ 与 $m_j$ 不互质的情况下进行求解，无解时返回-1
 
@@ -384,11 +384,11 @@ LL excrt(){
 }
 ```
 
-# 高斯消元
+## 高斯消元
 
 复杂度 $O(n^{3})$
 
-## 朴素做法
+### 朴素做法
 
 ```cpp
 const int N = 110;
@@ -437,7 +437,7 @@ int gauss()
 }
 ```
 
-## 01异或线性方程组
+### 01异或线性方程组
 
 ```cpp
 const int N = 110;
@@ -483,9 +483,9 @@ int gauss()
 }
 ```
 
-# 求组合数
+## 求组合数
 
-## 递推
+### 递推
 
 $1 \leq b \leq a \leq 2000$ 复杂度 $O(n^{2})$
 
@@ -505,7 +505,7 @@ void init(){
 }
 ```
 
-## 预处理
+### 预处理
 
 $1 \leq b \leq a \leq {10}^{5}$  复杂度 $O(nlogn)$
 
@@ -541,7 +541,7 @@ int C(int a, int b){
 }
 ```
 
-## 卢卡斯定理
+### 卢卡斯定理
 
 $1 \leq b \leq a \leq {10}^{18}$ , $1 \leq p \leq 10^{5}$  复杂度 $O(plogNlogp)$
 
@@ -576,7 +576,7 @@ int lucas(LL a, LL b, int p) {
 }
 ```
 
-## 高精度
+### 高精度
 
 分解质因数，再进行高精度乘法
 
@@ -652,13 +652,13 @@ vector<int> C(int a, int b){
 }
 ```
 
-# 卡特兰数
+## 卡特兰数
 
 通项: $C_n=\frac{C_{2n}^{n}}{n+1}$
 
 递推式: $C_1=1, C_n=\frac{4n-2}{n+1}C_{n-1} $
 
-## 单次
+### 单次
 
 将所有阶乘预处理出来
 
@@ -699,7 +699,7 @@ int catalan(int n){
 
 ```
 
-## 递推
+### 递推
 
 ```cpp
 typedef long long LL;
@@ -727,7 +727,7 @@ void get_catalans(int n, int p){
 }
 ```
 
-# 容斥原理
+## 容斥原理
 
 给定一个整数 $n$ 和 $m$ 个不同的质数 $p_1, p_2, \cdots, p_m$
 
@@ -767,9 +767,9 @@ int solve(){
 }
 ```
 
-# 博弈论
+## 博弈论
 
-## sg函数
+### sg函数
 
 $sg(必败态) = 0$ 
 
@@ -799,7 +799,7 @@ int sg(int x){
 }
 ```
 
-## Nim博弈
+### Nim博弈
 
 $a_1 \oplus a_2\oplus\cdots\oplus a_n = 0$ 则必败，否则必胜
 

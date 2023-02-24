@@ -1,0 +1,25 @@
+{
+  "name": "competitive-grogramming-docs",
+  "version": "1.0.0",
+  "description": "一份用于 ACM 类比赛的算法代码模板",
+  "main": "index.js",
+  "scripts": {
+    "docs:dev": "vitepress dev docs",
+    "docs:build": "vitepress build docs",
+    "docs:preview": "vitepress preview docs"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jinsuichen/CompetitiveProgrammingDocs.git"
+  },
+  "author": "jinsuichen <ischenjinsui@gmail.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jinsuichen/CompetitiveProgrammingDocs/issues"
+  },
+  "homepage": "https://github.com/jinsuichen/CompetitiveProgrammingDocs#readme",
+  "devDependencies": {
+    "vitepress": "^1.0.0-alpha.47",
+    "vue": "^3.2.47"
+  }
+}

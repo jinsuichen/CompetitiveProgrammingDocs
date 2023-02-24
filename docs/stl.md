@@ -1,4 +1,6 @@
-# vector
+# C++ STL
+
+## vector
 
 vector按照字典序比较
 
@@ -20,7 +22,7 @@ begin(); //vector的第0个数
 end(); //vector的最后一个的数的后面一个数
 ```
 
-# pair
+## pair
 
 支持比较运算，以first为第一关键字，以second为第二关键字
 
@@ -29,7 +31,7 @@ first(); //第一个元素
 second(); //第二个元素
 ```
 
-# string
+## string
 
 ```cpp
 substr(); //返回每一个子串
@@ -40,7 +42,7 @@ empty(); //返回字符串是否为空
 clear(); //把字符串清空
 ```
 
-# queue
+## queue
 
 ```cpp
 size(); //这个队列的长度
@@ -52,7 +54,7 @@ pop(); //把队头弹出
 q = queue<int> (); //队列没有clear()函数
 ```
 
-# priority_queue
+## priority_queue
 
 大根堆：priority_queue <类型> 变量名;
 小根堆：priority_queue <类型, vecotr <类型>, greater <类型> > 变量名
@@ -66,7 +68,7 @@ pop(); //弹出堆顶元素
 //注意：堆没有clear函数！！！
 ```
 
-# stack
+## stack
 
 ```cpp
 size(); //这个栈的长度
@@ -76,7 +78,7 @@ top(); //返回栈顶元素
 pop(); //弹出栈顶元素
 ```
 
-# deque
+## deque
 
 ```cpp
 size(); //这个双端队列的长度
@@ -92,7 +94,7 @@ begin(); //双端队列的第0个数
 end(); //双端队列的最后一个的数的后面一个数
 ```
 
-# set/multiset
+## set/multiset
 
  基于平衡二叉树（红黑树），动态维护有序序列
 
@@ -112,7 +114,7 @@ lower_bound(x); //返回大于等于x的最小的数的迭代器
 upper_bound(x); //返回大于x的最小的数的迭代器
 ```
 
-# map/multimap
+## map/multimap
 
  基于平衡二叉树（红黑树），动态维护有序序列
 
@@ -126,14 +128,14 @@ lower_bound(x); //返回大于等于x的最小的数的迭代器
 upper_bound(x); //返回大于x的最小的数的迭代器
 ```
 
-# unordered_xxx
+## unordered_xxx
 
 基于哈希表
 
 和上面类似，增删改查的时间复杂度是O(1)
 不支持lower_bound()和upper_bound()
 
-# bitset
+## bitset
 
 bitset <位数> 变量名;
 

@@ -1,6 +1,6 @@
-# 关于
+# 计算几何
 
-# 前置知识
+## 前置知识
 
 尽量减少使用除法、三角函数、反三角函数，以增加精度减少时间。
 
@@ -10,7 +10,7 @@ $pi = acos(-1);$
 
 正弦定理 $\frac{a}{sin\alpha} = \frac{b}{sin\beta} = \frac{c}{sin\theta}$
 
-# 浮点数比较
+## 浮点数比较
 ```cpp
 const double eps = 1e-8;
 
@@ -27,7 +27,7 @@ int cmp(double x, double y) { // 比较函数
 }
 ```
 
-# 向量
+## 向量
 ```cpp
 struct Point {
     double x, y;
@@ -69,7 +69,7 @@ Vector rotate(Vector a, double angle) {
 }
 ```
 
-# 极角排序
+## 极角排序
 根据叉乘排序
 ```cpp
 const double eps = 1e-8;
@@ -112,7 +112,7 @@ bool operator < (Vector a, Vector b) {
 }
 ```
 
-# 点与线
+## 点与线
 
 1. 一般式 $ax + by + c = 0$
 2. 点向式 $p_0 + t\vec{v}$
@@ -169,9 +169,9 @@ bool segment_intersection(Point a1, Point a2, Point b1, Point b2) {
 ```
 
 
-# 三角形
+## 三角形
 
-## 面积
+### 面积
 
 叉积
 
@@ -181,7 +181,7 @@ $p = (a + b + c) / 2$
 
 $S = sqrt(p \cdot (p - a) \cdot (p - b) \cdot (p - c))$
 
-## 三角形四心
+### 三角形四心
 
 1. 外心，外接圆圆心：三边中垂线交点。到三角形三个顶点的距离相等
 2. 内心，内切圆圆心：角平分线交点，到三边距离相等      
@@ -189,7 +189,7 @@ $S = sqrt(p \cdot (p - a) \cdot (p - b) \cdot (p - c))$
 4. 重心：三条中线交点（到三角形三顶点距离的平方和最小的点，三角形内到三边距离之积最大的点）
 
 
-# 多边形
+## 多边形
 
 ```cpp
 // 多边形面积
@@ -214,7 +214,7 @@ int contain(vector<Point>& polygon, Point p) {
 }
 ```
 
-## 皮克定理
+### 皮克定理
 $S = a + b/2 - 1$
 
 皮克定理是指一个计算点阵中顶点在格点上的多边形面积公式.
@@ -222,7 +222,7 @@ $S = a + b/2 - 1$
 其中a表示多边形内部的点数，b表示多边形边界上的点数，S表示多边形的面积。
 
 
-# 圆
+## 圆
 ```cpp
 struct Circle {
 	Point o; double r;
@@ -311,7 +311,7 @@ vector<Line> ciecle_circke_intan(const Circle &c1, const Circle &c2) {
 
 ```
 
-# 凸包
+## 凸包
 
 ```cpp
 // 以横坐标为第一关键字，纵坐标为第二关键字排序
@@ -354,7 +354,7 @@ vector<Point> andrew(vector<Point> &s) {
 }
 ```
 
-# 半平面交
+## 半平面交
 ```cpp
 // double
 const double eps = 1e-8;
